@@ -8,6 +8,7 @@ This project uses [Bootstrap](https://getbootstrap.com/) and [ngx-bootstrap](htt
 
 ### Installing Bootstrap dependency
 `sudo npm install --save bootstrap@4 jquery font-awesome`
+
 `sudo npm install ngx-bootstrap --save`
 
 After installing go to `.angular-cli.json` file and add at styles and scripts the .css and .js files:
