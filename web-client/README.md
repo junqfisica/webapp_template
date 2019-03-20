@@ -2,6 +2,26 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.6.
 
+## Project dependency
+
+This project uses [Bootstrap](https://getbootstrap.com/) and [ngx-bootstrap](https://valor-software.com/ngx-bootstrap/#/documentation#getting-started)
+
+### Installing Bootstrap dependency
+`sudo npm install --save bootstrap@4 jquery font-awesome`
+`sudo npm install ngx-bootstrap --save`
+
+After installing go to `.angular-cli.json` file and add at styles and scripts the .css and .js files:
+
+	"styles": [
+	  "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+	  "node_modules/font-awesome/css/font-awesome.min.css"
+	],
+	"scripts": [
+	  "./node_modules/jquery/jquery.min.js",
+	  "./node_modules/bootstrap/dist/js/bootstrap.min.js"
+	],
+
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
