@@ -7,7 +7,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 This project uses [Bootstrap](https://getbootstrap.com/) and [ngx-bootstrap](https://valor-software.com/ngx-bootstrap/#/documentation#getting-started)
 
 ### Installing Bootstrap dependency
-`sudo npm install --save bootstrap@4 jquery font-awesome`
+`sudo npm install --save bootstrap@4 jquery@3.3.1 font-awesome`
 
 `sudo npm install ngx-bootstrap --save`
 
@@ -18,7 +18,7 @@ After installing go to `.angular-cli.json` file and add at styles and scripts th
 	  "node_modules/font-awesome/css/font-awesome.min.css"
 	],
 	"scripts": [
-	  "./node_modules/jquery/jquery.min.js",
+	  "./node_modules/jquery/dist/jquery.min.js",
 	  "./node_modules/bootstrap/dist/js/bootstrap.min.js"
 	],
 
