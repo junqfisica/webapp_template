@@ -1,4 +1,4 @@
 # import the apis here.
 
 api_url_prefix = "/api"
-from flaskapp.api import users
+from flaskapp.api import user_controller
