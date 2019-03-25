@@ -41,5 +41,15 @@ export class AppComponent {
         console.log("Didn't get user")
       }
     )
+
+    this.userService.login("admin", "test").subscribe(
+      data => {
+        console.log(data)
+      }, 
+      error => {
+        console.log(error)
+        console.log("Fail to login")
+      }
+    )
   }
 }

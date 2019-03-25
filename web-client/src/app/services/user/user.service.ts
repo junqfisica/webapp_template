@@ -19,4 +19,8 @@ export class UserService {
   get_by_username(username: string): Observable<any> {
     return this.http.get<any>(ServerUrl.rootUrl + '/api/user/username/' + username);
   }
+
+  login(username: string, password: string): Observable<any> {
+    return this.http.get<any>(ServerUrl.rootUrl + '/api/login?username=' + username + '&password=' + password);
+  }
 }

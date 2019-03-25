@@ -1,8 +1,9 @@
+from builtins import classmethod
 from datetime import datetime
 
-from flask_bcrypt import Bcrypt
+from flask_login import UserMixin
 
-from flaskapp import db
+from flaskapp import db, bcrypt
 from flaskapp.models.base_model import BaseModel
 
 
@@ -12,7 +13,7 @@ class RelationShip:
     ROLE = "RoleModel"
 
 
-class UserModel(db.Model, BaseModel):
+class UserModel(db.Model, BaseModel, UserMixin):
 
     # The name of the table at the data base.
     __tablename__ = "t_user"
@@ -47,13 +48,16 @@ class UserModel(db.Model, BaseModel):
         return dict_representation
 
     def has_valid_password(self, password):
-        bcrypt = Bcrypt()
+        """
+        Verify if user has a valid password.
+        :param password: The paswword to be verify.
+        :return: True if password is valid, False otherwise.
+        """
         return bcrypt.check_password_hash(self.password, password)
 
     # Queries for this model.
     @classmethod
     def find_by_username(cls, username):
-        # user = cls.query.filter_by(username=username).first()
         user = cls.find_by(username=username)
         if user:
             return user

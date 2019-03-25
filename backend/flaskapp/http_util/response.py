@@ -5,7 +5,7 @@ from flask import jsonify
 from flaskapp.models.base_model import BaseModel
 
 
-def parse_to_json_response(obj):
+def string_to_response(obj):
     """
     Parse a string to an application/json
     :param obj: The model to parse into json response.
@@ -14,7 +14,7 @@ def parse_to_json_response(obj):
     return jsonify(obj)
 
 
-def parse_model_to_json_response(entities: BaseModel or [BaseModel]):
+def model_to_response(entities: BaseModel or [BaseModel]):
     """
     Parse a entity or a list of entities to an application/json
     :param entities: The model to parse into json response.

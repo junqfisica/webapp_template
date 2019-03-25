@@ -1,5 +1,9 @@
+import logging, coloredlogs
+
 from flask import Flask
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
 # Database configuration.
@@ -21,6 +25,41 @@ db = SQLAlchemy(app)
 
 # set CORS-filter
 CORS(app)
+
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+
+
+def create_logger():
+    # create logger.
+    logger = logging.getLogger('logger')
+    logger.setLevel(logging.INFO)
+    coloredlogs.install(level='DEBUG', logger=logger)
+
+    # create console handler and set level to debug.
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create file handler.
+    file_log = logging.FileHandler(filename="app.log")
+    file_log.setLevel(logging.INFO)
+
+    # create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+    file_log.setFormatter(formatter)
+
+    # add ch and file_log to logger
+    logger.addHandler(ch)
+    logger.addHandler(file_log)
+
+    return logger
+
+
+app_logger = create_logger()
+app_logger.info("Webservice started.")
 
 # this must be imported only after flask configuration.
 from flaskapp import api
