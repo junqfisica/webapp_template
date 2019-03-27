@@ -50,18 +50,19 @@ create table APP.T_ACCESS_TOKENS (
 	ID varchar(16) not null,
 	EXPIRY timestamp, 
 	TOKEN varchar(255) not null, 
-	USER_ID varchar(16), 
-	primary key (ID)
+	USER_ID varchar(16) not null, 
+	primary key (ID, TOKEN),
+	foreign key (USER_ID) references APP.T_USER (ID) on delete restrict
 );
 grant all privileges on table APP.T_ACCESS_TOKENS to APP;
 
 create table APP.T_USER (
-	USER_ID varchar(16) not null, 
+	ID varchar(16) not null, 
 	FORENAME varchar(50) not null, 
 	PASSWORD varchar(80) not null, 
 	SURNAME varchar(50) not null, 
 	USERNAME varchar(50) not null unique, 
-	primary key (USER_ID)
+	primary key (ID)
 );
 grant all privileges on table APP.T_USER to APP;
 
@@ -74,7 +75,7 @@ create table APP.T_USER_ROLES (
     LASTCHANGE_BY varchar(16),
     LASTCHANGE_AT timestamp,
     primary key (USER_ID, ROLE_ID),
-    foreign key (USER_ID) references APP.T_USER (USER_ID) on delete restrict,
+    foreign key (USER_ID) references APP.T_USER (ID) on delete restrict,
     foreign key (ROLE_ID) references APP.S_ROLES (ROLE_ID) on delete restrict
 );
 grant all privileges on table APP.T_USER_ROLES to APP;

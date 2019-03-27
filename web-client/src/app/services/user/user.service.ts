@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ServerUrl } from '../../statics/server-url';
 
+
 @Injectable()
 export class UserService {
 
@@ -13,14 +14,10 @@ export class UserService {
   }
 
   getAll(): Observable<any> {
-    return this.http.get<any>(ServerUrl.rootUrl + '/api/users');
+    return this.http.get<any>(ServerUrl.rootUrl + '/api/user/all');
   }
 
   get_by_username(username: string): Observable<any> {
     return this.http.get<any>(ServerUrl.rootUrl + '/api/user/username/' + username);
-  }
-
-  login(username: string, password: string): Observable<any> {
-    return this.http.get<any>(ServerUrl.rootUrl + '/api/login?username=' + username + '&password=' + password);
   }
 }

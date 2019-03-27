@@ -27,7 +27,11 @@ db = SQLAlchemy(app)
 CORS(app)
 
 bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
+
+login_manager = LoginManager()
+login_manager.session_protection = 'strong'
+
+login_manager.init_app(app)
 
 
 def create_logger():
@@ -62,5 +66,8 @@ app_logger = create_logger()
 app_logger.info("Webservice started.")
 
 # this must be imported only after flask configuration.
-from flaskapp import api
+from flaskapp.api import api as api_blueprint
+from flaskapp.api import users as users_blueprint
+app.register_blueprint(api_blueprint, url_prefix='/api')
+app.register_blueprint(users_blueprint, url_prefix='/api/user')
 

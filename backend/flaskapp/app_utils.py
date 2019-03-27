@@ -1,33 +1,24 @@
-from functools import wraps
-
-from flask import request
-
-from flaskapp import app
-from flaskapp.api import api_url_prefix
+import random
+import secrets
+import string
 
 
-def path(url_path=""):
+def generate_id(length):
     """
-    Append the api url prefix in the app.router().
-    :param url_path: The api url, e.g /getuser/ or /getuser/<int:id>
-    :return: The decorated function
+    Generate a random string with the combination of lowercase and uppercase letters.
+
+    :param length: The size of the id key
+    :return: An id of size length formed by lowe and uppercase letters.
     """
-    def app_decorator(func):
-        @wraps(func)
-        @app.route(api_url_prefix + url_path, endpoint=func.__name__)
-        def wrap_func(*args, **kwargs):
-            return func(*args, **kwargs)
-        return wrap_func
-    return app_decorator
+    letters = string.ascii_letters
+    return "".join(random.choice(letters) for _ in range(length))
 
 
-def query_param(*params):
-    def app_decorator(func):
-        @wraps(func)
-        def wrap_func(*args, **kwargs):
-            request_values = (request.args.get(param) for param in params)
-            args = request_values
-            return func(*args, **kwargs)
-        return wrap_func
-    return app_decorator
+def generate_token():
+    """
+    Creates a token with 32(16-bits) alphanumeric characters.
+    :return: A token string.
+    """
+    return secrets.token_hex(16)
+
 

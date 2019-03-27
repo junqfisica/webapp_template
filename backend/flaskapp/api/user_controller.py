@@ -1,11 +1,12 @@
 # User APIs.
 
-from flaskapp.app_utils import path
+from flaskapp.api import users
 from flaskapp.http_util import response as response
-from flaskapp.models.user_model import UserModel
+from flaskapp.http_util.decorators import secure
+from flaskapp.models import UserModel, Role
 
 
-@path("/user/<string:user_id>")
+@users.route("/<string:user_id>", methods=["GET"])
 def get_user(user_id):
     user = UserModel.find_by_id(user_id)
     if user:
@@ -14,18 +15,19 @@ def get_user(user_id):
     return response.empty_response()
 
 
-@path("/users")
+@users.route("/all", methods=["GET"])
+@secure(Role.ADMIN)
 def get_users():
 
-    users = UserModel.get_all()
+    all_users = UserModel.get_all()
 
-    if users:
-        return response.model_to_response(users)
+    if all_users:
+        return response.model_to_response(all_users)
 
     return response.empty_response()
 
 
-@path("/user/username/<string:username>")
+@users.route("/username/<string:username>", methods=["GET"])
 def get_user_by_username(username):
     user = UserModel.find_by_username(username)
 

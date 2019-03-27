@@ -1,33 +1,39 @@
 from builtins import classmethod
-from datetime import datetime
 
 from flask_login import UserMixin
 
-from flaskapp import db, bcrypt
+from flaskapp import db, bcrypt, login_manager, app_logger
+from flaskapp.models import RelationShip, TableNames, TokenModel
 from flaskapp.models.base_model import BaseModel
-
-
-class RelationShip:
-    USER_ROLE = "UserRoleModel"
-    USER = "UserModel"
-    ROLE = "RoleModel"
 
 
 class UserModel(db.Model, BaseModel, UserMixin):
 
     # The name of the table at the data base.
-    __tablename__ = "t_user"
+    __tablename__ = TableNames.T_USER
 
     # The table columns.
-    user_id = db.Column(db.String(16), primary_key=True)
+    id = db.Column(db.String(16), primary_key=True)
     name = db.Column(db.String(50), unique=False, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     surname = db.Column(db.String(50), unique=False, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    role = db.relationship(RelationShip.USER_ROLE, backref="user", lazy=True)
+    roles = db.relationship(RelationShip.USER_ROLE, backref="user", lazy=True)
+    token = db.relationship(RelationShip.TOKEN, backref="user", lazy=True)
 
     def __repr__(self):
-        return "User({})".format(self.username)
+        return "User(id={}, username={})".format(self.id, self.username)
+
+    @property
+    def get_roles(self):
+        """ Get a list of roles for this user."""
+        return [role.role_id for role in self.roles if role]
+
+    @property
+    def get_token(self):
+        """Get user token if any, otherwise returns None."""
+        token_model = TokenModel.find_by_user_id(self.id)
+        return token_model.token if token_model else None
 
     def to_dict(self):
         """
@@ -37,13 +43,10 @@ class UserModel(db.Model, BaseModel, UserMixin):
         # convert columns to dict
         dict_representation = super().to_dict()
 
-        # add role
-        role = "None"
-        # A user can have only one role.
-        if len(self.role) == 1:
-            role = self.role[0].role_id
-
-        dict_representation["role"] = role
+        # add roles
+        dict_representation["roles"] = self.get_roles
+        # add token
+        dict_representation["token"] = self.get_token
 
         return dict_representation
 
@@ -55,6 +58,12 @@ class UserModel(db.Model, BaseModel, UserMixin):
         """
         return bcrypt.check_password_hash(self.password, password)
 
+    def has_role(self, role):
+        if role in self.get_roles:
+            return True
+        else:
+            return False
+
     # Queries for this model.
     @classmethod
     def find_by_username(cls, username):
@@ -65,29 +74,15 @@ class UserModel(db.Model, BaseModel, UserMixin):
         return None
 
 
-class RoleModel(db.Model, BaseModel):
+# Called when security is required or current_user.
+@login_manager.request_loader
+def load_user(request):
+    # X-Access-Token come from the client side.
+    # This header is add to requests at the token.interceptor at the Angular side.
+    token = request.headers.get('X-Access-Token')
+    if token:
+        # TODO: change to get user from token...for now token = user_id
+        return UserModel.query.get(token)
 
-    # The name of the table at the data base.
-    __tablename__ = "s_roles"
-
-    # The table columns.
-    role_id = db.Column(db.String(50), primary_key=True)
-    label = db.Column(db.String(50), unique=True, nullable=False)
-
-    def __repr__(self):
-        return "Role(role_id={})".format(self.role_id)
-
-
-class UserRoleModel(db.Model, BaseModel):
-
-    # The name of the table at the data base.
-    __tablename__ = "t_user_roles"
-
-    # The table columns.
-    user_id = db.Column(db.String(16), db.ForeignKey(UserModel.__tablename__+".user_id"), primary_key=True)
-    role_id = db.Column(db.String(50), db.ForeignKey(RoleModel.__tablename__+".role_id"), primary_key=True)
-    lastchange_by = db.Column(db.String(16), unique=False, nullable=True)
-    lastchange_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return "UserRole(user_id={}, role={})".format(self.user_id, self.role_id)
+    app_logger.warning("Header request don't have a token.")
+    return None
