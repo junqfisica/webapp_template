@@ -23,6 +23,7 @@ export class AuthService {
       })
     };
     const loginForm = 'username=' + user.username + '&password=' + user.password;
-    return this.http.post<any>(ServerUrl.rootUrl + '/api/login', loginForm, httpOptions);
+    return this.http.post<User>(ServerUrl.rootUrl + '/api/login', loginForm, httpOptions);
   }
+
 }

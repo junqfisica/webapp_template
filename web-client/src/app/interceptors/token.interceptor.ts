@@ -5,11 +5,15 @@ import {
     HttpRequest,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { LocalStorage } from '../statics/local-storage';
   
 export class TokenInterceptor implements HttpInterceptor {
+
+    constructor() { }
   
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const currentUser = LocalStorage.currentUser
+        
         if (currentUser) {
             // // Clone the request to add the new header
             // const clonedRequest = req.clone({

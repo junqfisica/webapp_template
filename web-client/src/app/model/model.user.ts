@@ -1,6 +1,5 @@
 export class User {
     id: string;
-    userId: string;
     token: string;
     username  = '';
     surname = '';
