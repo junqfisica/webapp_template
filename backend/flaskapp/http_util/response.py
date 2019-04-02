@@ -5,13 +5,22 @@ from flask import jsonify
 from flaskapp.models.base_model import BaseModel
 
 
-def string_to_response(obj):
+def string_to_response(string):
     """
     Parse a string to an application/json
-    :param obj: The model to parse into json response.
+    :param string: The string to parse into json response.
     :return: The Json response.
     """
-    return jsonify(obj)
+    return jsonify(string)
+
+
+def bool_to_response(b: bool):
+    """
+    Parse a string to an application/json
+    :param b: The boolean to parse into json response.
+    :return: The Json response.
+    """
+    return jsonify(b)
 
 
 def model_to_response(entities: BaseModel or [BaseModel]):

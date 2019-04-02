@@ -2,6 +2,8 @@ import random
 import secrets
 import string
 
+from flaskapp import bcrypt
+
 
 def generate_id(length):
     """
@@ -20,5 +22,10 @@ def generate_token():
     :return: A token string.
     """
     return secrets.token_hex(16)
+
+
+def encrypt_password(psw: str):
+    """Encrypts a password and return the encripted string."""
+    return bcrypt.generate_password_hash(psw).decode("utf-8")
 
 

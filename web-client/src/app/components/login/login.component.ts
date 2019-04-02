@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from 'src/app/model/model.user';
-import { AuthService } from 'src/app/services/auth/auth.service';
-import { NotificationService } from 'src/app/services/notification/notification.service';
+import { Router } from '@angular/router';
+
+import { User } from '../../model/model.user';
+import { AuthService } from '../../services/auth/auth.service';
+import { NotificationService } from '../../services/notification/notification.service';
+import { LocalStorage } from '../../statics/local-storage';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +15,14 @@ import { NotificationService } from 'src/app/services/notification/notification.
 export class LoginComponent implements OnInit {
 
   user: User = new User();
-  constructor(private authService: AuthService, private notificationService: NotificationService) { }
+  constructor(private authService: AuthService, private notificationService: NotificationService, 
+    private router: Router, private appComponent: AppComponent) {
+
+      // If user is logged redirect to home.
+      if (LocalStorage.currentUser) {
+        this.redirectToHome();
+      }
+  }
 
   ngOnInit() {
   }
@@ -21,7 +32,8 @@ export class LoginComponent implements OnInit {
       user => {
         if (user) {
           this.notificationService.showSuccessMessage("Logged in as " + user.username)
-          console.log(user);
+          LocalStorage.saveCurrentUser(user)
+          this.redirectToHome();
         } else {
           this.notificationService.showErrorMessage("Username or password don't match, try again.")
         }
@@ -31,6 +43,11 @@ export class LoginComponent implements OnInit {
         console.log(error);
       }
     );
+  }
+
+  private redirectToHome(){
+    this.router.navigate(['/']);
+    this.appComponent.updateUser();
   }
 
 }

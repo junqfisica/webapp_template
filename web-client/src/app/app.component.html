@@ -1,24 +1,28 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
   <ul class="navbar-nav mr-auto">
-    <li class="nav-item active">
-      <a class="nav-link" href="#" routerLinkActive="active">Home <span class="sr-only">(current)</span></a>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="#" routerLinkActive="active">Home <span class="sr-only">(current)</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="#" routerLinkActive="active">Features</a>
+      <a class="nav-link" *ngIf="hasRole('ROLE_USER')" routerLink="#" routerLinkActive="active">User Feature</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" *ngIf="hasRole('ROLE_ADMIN')" routerLink="user/createUser" routerLinkActive="active">Create user</a>
     </li>
   </ul>
-  <ul class="navbar-nav">
+  <ul class="navbar-nav ml-auto">
     <li class="nav-item">
-      <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#" routerLinkActive="active">Register</a>
+      <a class="nav-link" *ngIf="!currentUser" routerLink="/login" routerLinkActive="active">Login</a>
+      <a class="nav-item dropdown" *ngIf="currentUser">
+        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" 
+          aria-haspopup="true" aria-expanded="false">{{currentUser.username}}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item">Account</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" (click)="logout()">Logout</a>
+        </div>
+      </a>
     </li>
   </ul>
 </nav>

@@ -2,8 +2,9 @@ from builtins import classmethod
 
 from flask_login import UserMixin
 
-from flaskapp import db, bcrypt, login_manager, app_logger
-from flaskapp.models import RelationShip, TableNames, TokenModel
+from flaskapp import db, bcrypt, login_manager, app_logger, app_utils
+from flaskapp.http_util import exceptions
+from flaskapp.models import RelationShip, TableNames, TokenModel, UserRoleModel, RoleModel
 from flaskapp.models.base_model import BaseModel
 
 
@@ -64,6 +65,27 @@ class UserModel(db.Model, BaseModel, UserMixin):
         else:
             return False
 
+    def add_roles(self, roles_ids: [str], current_user_id=None):
+
+        for role_id in roles_ids:
+            if RoleModel.is_valid_role(role_id):
+                user_role = UserRoleModel(user_id=self.id, role_id=role_id, lastchange_by=current_user_id)
+                self.roles.append(user_role)
+
+    @classmethod
+    def create_user(cls, user_dict, current_user_id=None):
+        user = cls.from_dict(user_dict)
+        user.id = app_utils.generate_id(16)
+        user.password = app_utils.encrypt_password(user.password)
+
+        # Add role relational field.
+        roles_id = user_dict.get("roles")
+        if not roles_id:
+            raise exceptions.RoleNotFound("User must have at least one role assigned.")
+        user.add_roles(roles_ids=roles_id, current_user_id=current_user_id)
+
+        return user
+
     # Queries for this model.
     @classmethod
     def find_by_username(cls, username):
@@ -81,8 +103,12 @@ def load_user(request):
     # This header is add to requests at the token.interceptor at the Angular side.
     token = request.headers.get('X-Access-Token')
     if token:
-        # TODO: change to get user from token...for now token = user_id
-        return UserModel.query.get(token)
+        token_model = TokenModel.find_by(token=token)
+        if token_model:
+            return token_model.user  # This is possible because of backref = user.
+        else:
+            app_logger.warning("The toke {} don't exist in the database.".format(token))
+            return None
 
     app_logger.warning("Header request don't have a token.")
     return None

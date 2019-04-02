@@ -1,15 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { AlertComponent } from 'ngx-bootstrap/alert/alert.component';
 
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-
-import { UserService } from './services/user/user.service';
 import { User } from './model/model.user';
-import { AuthService } from './services/auth/auth.service';
 import { NotificationService } from './services/notification/notification.service';
 import { ComponentUtils } from './components/component.utils';
+import { LocalStorage } from './statics/local-storage';
+
 
 @Component({
   selector: 'app-root',
@@ -20,11 +18,11 @@ export class AppComponent extends ComponentUtils {
 
   title = 'MyApp';
   alerts: any[] = [];
-  
-  constructor(private userService: UserService, private authService: AuthService, 
-    private notificationService: NotificationService) {
-      
+  currentUser: User
+
+  constructor(private notificationService: NotificationService, private router: Router) {
       super(notificationService);
+      this.updateUser()
       this.notificationService.successMessage$.subscribe(
         message => {
           this.addAlerts("success", message, 5000)
@@ -70,5 +68,17 @@ export class AppComponent extends ComponentUtils {
 
   onClosed(dismissedAlert: AlertComponent): void {
     this.alerts = this.alerts.filter(alert => alert !== dismissedAlert);
+  }
+
+  public updateUser() {
+    this.currentUser = LocalStorage.currentUser
+  }
+
+  public logout() {
+    this.currentUser = null
+    LocalStorage.removeCurrentUser()
+    this.notificationService.showSuccessMessage("You were logged out.")
+    this.router.navigate(['/']);
+
   }
 }

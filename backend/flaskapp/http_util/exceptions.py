@@ -7,9 +7,10 @@ from flaskapp import app
 
 # Exceptions Classes
 
-class PermissionDenied(Exception):
 
-    status_code = http.HTTPStatus.UNAUTHORIZED
+class AppException(Exception):
+
+    status_code = http.HTTPStatus.INTERNAL_SERVER_ERROR
 
     def __init__(self, message, status_code=None, payload=None):
         Exception.__init__(self)
@@ -24,10 +25,34 @@ class PermissionDenied(Exception):
         return rv
 
 
-# Register exceptions in the app.
+class PermissionDenied(AppException):
 
-@app.errorhandler(PermissionDenied)
-def handle_permission_denied(error):
+    status_code = http.HTTPStatus.UNAUTHORIZED
+
+
+class RoleNotFound(AppException):
+
+    status_code = http.HTTPStatus.FAILED_DEPENDENCY
+
+
+def error_to_response(error: AppException):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+# Register exceptions in the app.
+
+@app.errorhandler(AppException)
+def handle_app_exception(error: AppException):
+    return error_to_response(error)
+
+
+@app.errorhandler(PermissionDenied)
+def handle_permission_denied(error: AppException):
+    return error_to_response(error)
+
+
+@app.errorhandler(RoleNotFound)
+def handle_role_not_found(error: AppException):
+    return error_to_response(error)

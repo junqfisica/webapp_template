@@ -16,6 +16,14 @@ class RoleModel(db.Model, BaseModel):
     def __repr__(self):
         return "Role(role_id={})".format(self.role_id)
 
+    @classmethod
+    def is_valid_role(cls, role_id: str):
+        role = cls.find_by_id(role_id)
+        if role:
+            return True
+
+        return False
+
 
 class UserRoleModel(db.Model, BaseModel):
 

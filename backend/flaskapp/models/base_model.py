@@ -1,3 +1,4 @@
+from sqlalchemy import Column
 from sqlalchemy.exc import SQLAlchemyError
 
 from flaskapp import db, app_logger
@@ -92,15 +93,20 @@ class BaseModel:
         return None
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, order_by: Column = None):
         """
         Get all entities from this model.
+        @:param order_by: (Optional) The Column to sort the query.
         :return: The list of entities, None otherwise.
         """
         # Validate class before query
         cls.__class_validation()
 
-        entity_list = cls.query.all()
+        if order_by:
+            entity_list = cls.query.order_by(order_by).all()
+        else:
+            entity_list = cls.query.all()
+
         if entity_list:
             return entity_list
 
@@ -113,16 +119,17 @@ class BaseModel:
 
         :param get_first: (default=True). If True return one value, otherwise it will try to get
         all entries that match the query.
-        :param kwarg: The column name as key and the value to match, e.g username="Jon".
-            Important: you must pass only one kwarg to this method, otherwise a ValueError will raise.
+        :param kwarg: The column name as key and the value to match, e.g username="Jon". If more than one
+            filter is given the query will use AND to join it.
+            Important: you must pass at least one kwarg to this method, otherwise a ValueError will raise.
         :return: The entity if is_unique=True and it exists or a list of entity if is_unique=False and exists.
             None, otherwise.
         """
         # Validate class before query
         cls.__class_validation()
 
-        if len([*kwarg]) != 1:
-            raise ValueError("find_by must have only one **kwarg")
+        if len([*kwarg]) < 1:
+            raise ValueError("find_by must have at least one **kwarg")
 
         if get_first:
             entity = cls.query.filter_by(**kwarg).first()

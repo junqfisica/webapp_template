@@ -1,9 +1,11 @@
 import { NotificationService } from '../services/notification/notification.service';
+import { User } from '../model/model.user';
+import { LocalStorage } from '../statics/local-storage';
 
 export abstract class ComponentUtils {
 
     // bsConfig = Object.assign({}, {locale: 'de', containerClass: 'theme-dark-blue', dateInputFormat: 'DD.MM.YYYY'});
-  
+
     constructor(private __notificationService: NotificationService) {
   
     }
@@ -18,5 +20,20 @@ export abstract class ComponentUtils {
   
     public showErrorMessage(message: string) {
       this.__notificationService.showErrorMessage(message);
+    }
+
+    private userHasRole(user: User, role: string): boolean {
+        if (user == null) {
+          return false;
+        }
+        if (user.roles != null && user.roles.includes(role)) {
+          return true;
+        }
+        return false;
+    }
+
+    public hasRole(role: string): boolean {
+        const currentUser = LocalStorage.currentUser
+        return this.userHasRole(currentUser, role);
     }
   }
