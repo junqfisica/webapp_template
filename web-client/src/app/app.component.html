@@ -6,19 +6,18 @@
     <li class="nav-item">
       <a class="nav-link" *ngIf="hasRole('ROLE_USER')" routerLink="#" routerLinkActive="active">User Feature</a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" *ngIf="hasRole('ROLE_ADMIN')" routerLink="user/createUser" routerLinkActive="active">Create user</a>
-    </li>
   </ul>
   <ul class="navbar-nav ml-auto">
     <li class="nav-item">
       <a class="nav-link" *ngIf="!currentUser" routerLink="/login" routerLinkActive="active">Login</a>
-      <a class="nav-item dropdown" *ngIf="currentUser">
+      <a class="nav-item btn-group" routerLinkActive="active" *ngIf="currentUser">
         <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" 
-          aria-haspopup="true" aria-expanded="false">{{currentUser.username}}
+          aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-alignment">{{currentUser.username}}
         </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
           <a class="dropdown-item">Account</a>
+          <a class="dropdown-item" *ngIf="hasRole('ROLE_ADMIN')" routerLink="user/createUser">Create user</a>
+          <a class="dropdown-item" *ngIf="hasRole('ROLE_ADMIN')" routerLink="user/users">Users</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" (click)="logout()">Logout</a>
         </div>

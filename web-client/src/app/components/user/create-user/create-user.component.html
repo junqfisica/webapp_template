@@ -1,8 +1,8 @@
-<div class="container" *ngIf="registerForm">
+<div class="container" *ngIf="userForm">
   <div class="row">
       <div class="col-md-6 offset-md-3">
           <h2>Create a new user</h2>
-          <form [formGroup]="registerForm"  (ngSubmit)="onSubmit()">
+          <form [formGroup]="userForm"  (ngSubmit)="onSubmit()">
               <div class="form-group">
                   <label>First Name</label>
                   <input type="text" formControlName="firstName" class="form-control" 

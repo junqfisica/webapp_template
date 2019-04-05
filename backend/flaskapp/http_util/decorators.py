@@ -1,9 +1,9 @@
-import json
 from functools import wraps
 
 from flask import request
 from flask_login import current_user
 
+from flaskapp.abstractClasses import AbstractStructure
 from flaskapp.http_util.exceptions import PermissionDenied
 
 
@@ -28,6 +28,33 @@ def query_param(*params: str):
             request_values = (request.args.get(param) for param in params)
             args = request_values
             return func(*args, **kwargs)
+        return wrap_func
+    return app_decorator
+
+
+def query(class_to_map: AbstractStructure):
+    """
+    Gets the parameters in the http url request and map to a structure. The class must have the same keys as the
+    object being passed.
+    Import!! The keys in the json must have the exactly same names as the parameters in the class to be mapped.
+
+    Example:  request -> /api/user/search , { QueryParameters }. Here QueryParameters is a json and each key
+    is mapped to a parameter in the class UserSearch.
+
+    In this example the request parameters are username and password. You must then use this decorator like::
+
+        @query(UserSearch)
+        def my_func(us):
+
+
+    :param class_to_map: Expected to be a child from AbstractStructure class.
+    :return: The instance of the class mapped.
+    """
+    def app_decorator(func):
+        @wraps(func)
+        def wrap_func(*args, **kwargs):
+            class_instance = class_to_map.from_dict(request.args)
+            return func(class_instance)
         return wrap_func
     return app_decorator
 

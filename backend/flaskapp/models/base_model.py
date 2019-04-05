@@ -34,7 +34,7 @@ class BaseModel:
         :param dto: The data transfer object as a dictionary.
         :return: The model represent this class.
         """
-        # Map column names back to dto fields. The keys must be equal to the column name.
+        # Map column names back to search fields. The keys must be equal to the column name.
         clean_dict = {c.name: dto[c.name] for c in cls.__table__.columns}
         return cls(**clean_dict)
 
@@ -93,6 +93,24 @@ class BaseModel:
         return None
 
     @classmethod
+    def pagination(cls, per_page, page):
+        """
+        Get a list of entities using pagination.
+        :param per_page: The maximum number entities per page.
+        :param page: The current page.
+        :return: The list of entities, None otherwise.
+        """
+
+        # Validate class before query
+        cls.__class_validation()
+
+        entities = cls.query.paginate(per_page=per_page, page=page).items
+        if entities:
+            return entities
+
+        return None
+
+    @classmethod
     def get_all(cls, order_by: Column = None):
         """
         Get all entities from this model.
@@ -140,3 +158,14 @@ class BaseModel:
             return entity
 
         return None
+
+    @classmethod
+    def total(cls) -> int:
+        """
+        Get the total number of entities of this model.
+        :return: The total number of entities in the database.
+        """
+        entity_list = cls.query.all()
+        if entity_list:
+            return len(entity_list)
+        return 0

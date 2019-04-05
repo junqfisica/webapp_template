@@ -19,8 +19,8 @@ class UserModel(db.Model, BaseModel, UserMixin):
     password = db.Column(db.String(80), unique=False, nullable=False)
     surname = db.Column(db.String(50), unique=False, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    roles = db.relationship(RelationShip.USER_ROLE, backref="user", lazy=True)
-    token = db.relationship(RelationShip.TOKEN, backref="user", lazy=True)
+    roles = db.relationship(RelationShip.USER_ROLE, backref="user", cascade="save-update, merge, delete", lazy=True)
+    token = db.relationship(RelationShip.TOKEN, backref="user", cascade="save-update, merge, delete", lazy=True)
 
     def __repr__(self):
         return "User(id={}, username={})".format(self.id, self.username)

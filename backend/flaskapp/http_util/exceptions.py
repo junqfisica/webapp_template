@@ -25,6 +25,10 @@ class AppException(Exception):
         return rv
 
 
+class UserNotFound(AppException):
+    status_code = http.HTTPStatus.NOT_FOUND
+
+
 class PermissionDenied(AppException):
 
     status_code = http.HTTPStatus.UNAUTHORIZED
@@ -45,6 +49,11 @@ def error_to_response(error: AppException):
 
 @app.errorhandler(AppException)
 def handle_app_exception(error: AppException):
+    return error_to_response(error)
+
+
+@app.errorhandler(UserNotFound)
+def handle_user_not_found(error: AppException):
     return error_to_response(error)
 
 

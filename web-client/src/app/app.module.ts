@@ -7,6 +7,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { TabsModule } from 'ngx-bootstrap/tabs';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,13 +20,15 @@ import { LoginComponent } from './components/login/login.component';
 import { NotificationService } from './services/notification/notification.service';
 import { CreateUserComponent } from './components/user/create-user/create-user.component';
 import { UrlPermission } from './urlPermission/url.permission';
+import { UserListComponent } from './components/user/user-list/user-list.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    CreateUserComponent
+    CreateUserComponent,
+    UserListComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +38,10 @@ import { UrlPermission } from './urlPermission/url.permission';
     HttpClientModule,
     ButtonsModule.forRoot(),
     AlertModule.forRoot(),
-    TabsModule.forRoot()
+    TabsModule.forRoot(),
+    ModalModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    PaginationModule.forRoot()
   ],
   providers: [
     AuthService,

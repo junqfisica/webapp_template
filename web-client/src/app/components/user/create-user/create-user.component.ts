@@ -16,7 +16,7 @@ import { AppValidador } from '../../../statics/form-validators';
   styleUrls: ['./create-user.component.css']
 })
 export class CreateUserComponent implements OnInit {
-  registerForm: FormGroup;
+  userForm: FormGroup;
   submitted = false;
   passwordMinLenght = 6
   roles: Role[] = []
@@ -48,7 +48,7 @@ export class CreateUserComponent implements OnInit {
       roleForm[role.role_id] = ['', {validators: [this.validadeRoles(this.roles)], updateOn: 'change'}]
     }
 
-    this.registerForm = this.formBuilder.group({
+    this.userForm = this.formBuilder.group({
       username: ['', {validators: [Validators.required, this.validadeUsername()], updateOn: 'change'}],
       firstName: ['', {validators: Validators.required, updateOn: 'change'}],
       lastName: ['', {validators: Validators.required, updateOn: 'change'}],
@@ -58,7 +58,7 @@ export class CreateUserComponent implements OnInit {
     });
 
     // Regiter username valueChanges to check if username is already taken.
-    this.registerForm.get('username').valueChanges.pipe(
+    this.userForm.get('username').valueChanges.pipe(
       debounceTime(200),
       // Avoid infinity loop.
       distinctUntilChanged())
@@ -69,7 +69,7 @@ export class CreateUserComponent implements OnInit {
     );
   }
 
-  get rolesForm (): FormGroup {return <FormGroup> this.registerForm.get("roles")}
+  get rolesForm (): FormGroup {return <FormGroup> this.userForm.get("roles")}
 
   validadeRoles (roles : Role[]): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
@@ -130,7 +130,7 @@ export class CreateUserComponent implements OnInit {
   }
 
   // convenience getter for easy access to form fields
-  get f() { return this.registerForm.controls }
+  get f() { return this.userForm.controls }
   get roleControls() { return this.rolesForm.controls}
 
   private formToUser(): User{
@@ -159,7 +159,7 @@ export class CreateUserComponent implements OnInit {
     this.f.confirmPassword.updateValueAndValidity()
 
     // stop here if form is invalid
-    if (this.registerForm.invalid) {
+    if (this.userForm.invalid) {
         return;
     }
 

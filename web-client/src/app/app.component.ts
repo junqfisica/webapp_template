@@ -18,7 +18,6 @@ export class AppComponent extends ComponentUtils {
 
   title = 'MyApp';
   alerts: any[] = [];
-  currentUser: User
 
   constructor(private notificationService: NotificationService, private router: Router) {
       super(notificationService);

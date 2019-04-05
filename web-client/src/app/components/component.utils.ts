@@ -5,7 +5,8 @@ import { LocalStorage } from '../statics/local-storage';
 export abstract class ComponentUtils {
 
     // bsConfig = Object.assign({}, {locale: 'de', containerClass: 'theme-dark-blue', dateInputFormat: 'DD.MM.YYYY'});
-
+    currentUser: User = LocalStorage.currentUser
+    
     constructor(private __notificationService: NotificationService) {
   
     }
@@ -22,7 +23,7 @@ export abstract class ComponentUtils {
       this.__notificationService.showErrorMessage(message);
     }
 
-    private userHasRole(user: User, role: string): boolean {
+    protected userHasRole(user: User, role: string): boolean {
         if (user == null) {
           return false;
         }
@@ -33,7 +34,6 @@ export abstract class ComponentUtils {
     }
 
     public hasRole(role: string): boolean {
-        const currentUser = LocalStorage.currentUser
-        return this.userHasRole(currentUser, role);
+        return this.userHasRole(this.currentUser, role);
     }
   }

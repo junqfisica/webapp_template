@@ -3,8 +3,10 @@ from flask_login import current_user
 
 from flaskapp.api import users
 from flaskapp.http_util import response as response
-from flaskapp.http_util.decorators import secure, post
+from flaskapp.http_util.decorators import secure, post, query
+from flaskapp.http_util.exceptions import UserNotFound
 from flaskapp.models import UserModel, Role, RoleModel
+from flaskapp.search.structures import UserSearch, SearchResult
 
 
 def __is_username_taken(username: str) -> bool:
@@ -44,6 +46,19 @@ def get_users():
     return response.empty_response()
 
 
+@users.route("/search", methods=["GET"])
+@secure(Role.ADMIN)
+@query(UserSearch)
+def search(user_search: UserSearch):
+
+    user_list = UserModel.pagination(per_page=user_search.PerPage, page=user_search.Page)
+    model_dict = [entity.to_dict() for entity in user_list]
+    total = UserModel.total()
+    if users:
+        return response.model_to_response(SearchResult(result=model_dict, total=total))
+    return response.empty_response()
+
+
 @users.route("/username/<string:username>", methods=["GET"])
 def get_user_by_username(username: str):
     user = UserModel.find_by_username(username)
@@ -74,3 +89,15 @@ def create_user(user: dict):
     created = user_model.save()
 
     return response.bool_to_response(created)
+
+
+@users.route("/delete/<string:user_id>", methods=["DELETE"])
+@secure(Role.ADMIN)
+def delete_user(user_id):
+    print(user_id)
+    user = UserModel.find_by_id(user_id)
+    if not user:
+        raise UserNotFound("The user id {} doesn't exist".format(user_id))
+
+    deleted = user.delete()
+    return response.bool_to_response(deleted)
