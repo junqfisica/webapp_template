@@ -1,6 +1,9 @@
 # User APIs.
+from typing import List
+
 from flask_login import current_user
 
+from flaskapp import app_logger
 from flaskapp.api import users
 from flaskapp.http_util import response as response
 from flaskapp.http_util.decorators import secure, post, query
@@ -18,7 +21,7 @@ def __is_username_taken(username: str) -> bool:
 
 @users.route("/<string:user_id>", methods=["GET"])
 def get_user(user_id: str):
-    user = UserModel.find_by_id(user_id)
+    user: UserModel = UserModel.find_by_id(user_id)
     if user:
         return response.model_to_response(user)
 
@@ -27,7 +30,7 @@ def get_user(user_id: str):
 
 @users.route("/roles", methods=["GET"])
 def get_roles():
-    roles = RoleModel.get_all(order_by=RoleModel.label)
+    roles: List[RoleModel] = RoleModel.get_all(order_by=RoleModel.label)
     if roles:
         return response.model_to_response(roles)
 
@@ -38,7 +41,7 @@ def get_roles():
 @secure(Role.ADMIN)
 def get_users():
 
-    all_users = UserModel.get_all()
+    all_users: List[UserModel] = UserModel.get_all()
 
     if all_users:
         return response.model_to_response(all_users)
@@ -51,7 +54,7 @@ def get_users():
 @query(UserSearch)
 def search(user_search: UserSearch):
 
-    user_list = UserModel.pagination(per_page=user_search.PerPage, page=user_search.Page)
+    user_list: List[UserModel] = UserModel.pagination(per_page=user_search.PerPage, page=user_search.Page)
     model_dict = [entity.to_dict() for entity in user_list]
     total = UserModel.total()
     if users:
@@ -91,13 +94,31 @@ def create_user(user: dict):
     return response.bool_to_response(created)
 
 
+@users.route("/update", methods=["POST"])
+@secure(Role.ADMIN)
+@post()
+def update_user(user: dict):
+    # update user
+    updated_user = UserModel.update_user(user, current_user.id)
+
+    if not updated_user:
+        raise UserNotFound("The user doesn't exist.")
+
+    # return response.bool_to_response(True)
+    return response.bool_to_response(updated_user.save())
+
+
 @users.route("/delete/<string:user_id>", methods=["DELETE"])
 @secure(Role.ADMIN)
 def delete_user(user_id):
-    print(user_id)
-    user = UserModel.find_by_id(user_id)
+    user: UserModel = UserModel.find_by_id(user_id)
     if not user:
         raise UserNotFound("The user id {} doesn't exist".format(user_id))
 
     deleted = user.delete()
+    if deleted:
+        app_logger.info("User {} has been deleted".format(user.username))
+    else:
+        app_logger.warning("User {} could't be deleted.".format(user.username))
+
     return response.bool_to_response(deleted)

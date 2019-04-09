@@ -21,14 +21,15 @@ import { NotificationService } from './services/notification/notification.servic
 import { CreateUserComponent } from './components/user/create-user/create-user.component';
 import { UrlPermission } from './urlPermission/url.permission';
 import { UserListComponent } from './components/user/user-list/user-list.component';
-
+import { UserEditComponent } from './components/user/user-edit/user-edit.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     CreateUserComponent,
-    UserListComponent
+    UserListComponent,
+    UserEditComponent
   ],
   imports: [
     BrowserModule,

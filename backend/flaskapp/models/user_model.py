@@ -1,4 +1,4 @@
-from builtins import classmethod
+from typing import List
 
 from flask_login import UserMixin
 
@@ -65,16 +65,40 @@ class UserModel(db.Model, BaseModel, UserMixin):
         else:
             return False
 
-    def add_roles(self, roles_ids: [str], current_user_id=None):
+    def add_role(self, role_id: str, current_user_id=None):
+        """
+        Add role to this user.
+        Important: This will not be added to the database until user is saved.
+        :param role_id: The role id, e.g: ROLE_USER
+        :param current_user_id: The current id of the user that is making this change.
+        :return:
+        """
+        if RoleModel.is_valid_role(role_id) and not self.has_role(role_id):
+            user_role = UserRoleModel(user_id=self.id, role_id=role_id, lastchange_by=current_user_id)
+            self.roles.append(user_role)
 
+    def add_roles(self, roles_ids: List[str], current_user_id=None):
+        """
+        Add roles to this user.
+        Important: This will not be added to the database until user is saved.
+        :param roles_ids: A list of role's ids, e.g: [ROLE_USER, ROLE_ADMIN]
+        :param current_user_id: The current id of the user that is making this change.
+        :return:
+        """
         for role_id in roles_ids:
-            if RoleModel.is_valid_role(role_id):
-                user_role = UserRoleModel(user_id=self.id, role_id=role_id, lastchange_by=current_user_id)
-                self.roles.append(user_role)
+            self.add_role(role_id, current_user_id)
+
+    def _delete_roles(self):
+        """
+        This will remove all roles this user has from database.
+        :return:
+        """
+        for role in self.roles:
+            role.delete()
 
     @classmethod
     def create_user(cls, user_dict, current_user_id=None):
-        user = cls.from_dict(user_dict)
+        user: UserModel = cls.from_dict(user_dict)
         user.id = app_utils.generate_id(16)
         user.password = app_utils.encrypt_password(user.password)
 
@@ -86,6 +110,31 @@ class UserModel(db.Model, BaseModel, UserMixin):
 
         return user
 
+    @classmethod
+    def update_user(cls, user_dict, current_user_id=None):
+        user: UserModel = cls.from_dict(user_dict)
+        user_id = user.id
+        valid_user: UserModel = UserModel.find_by_id(user_id)
+        if not valid_user:
+            return None
+
+        # Update a valid user.
+        valid_user.username = user.username
+        valid_user.name = user.name
+        valid_user.surname = user.surname
+
+        # Update role relational field.
+        roles_ids = user_dict.get("roles")
+        if not roles_ids:
+            raise exceptions.RoleNotFound("User must have at least one role assigned.")
+
+        # delete all roles
+        valid_user._delete_roles()
+        # add new ones.
+        valid_user.add_roles(roles_ids=roles_ids, current_user_id=current_user_id)
+
+        return valid_user
+
     # Queries for this model.
     @classmethod
     def find_by_username(cls, username):
@@ -96,7 +145,8 @@ class UserModel(db.Model, BaseModel, UserMixin):
         return None
 
 
-# Called when security is required or current_user.
+# Called when either security or current_user is required.
+# Import this must be locate at the same file as UserModel
 @login_manager.request_loader
 def load_user(request):
     # X-Access-Token come from the client side.

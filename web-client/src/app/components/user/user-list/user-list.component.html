@@ -23,7 +23,7 @@
       </td>
       <td>
         <div class="pull-right">
-          <a routerLink="editUser/{{user.userId}}" class="btn btn-xs btn-default" *ngIf="hasRole('ROLE_ADMIN')" title="edit">
+          <a routerLink="/user/edit/{{user.id}}" class="btn btn-xs btn-default" *ngIf="hasRole('ROLE_ADMIN')" title="edit">
             <span class="fa fa-pencil icon-medium"></span>
           </a>
           <button (click)="openDeleteModal(deleteModalTemplate, user)" class="btn btn-xs btn-default" 
@@ -35,30 +35,7 @@
     </tr>
   </tbody>
 </table>
-<div class="d-flex justify-content-end">
-  <div class="p-2">
-      <div class="btn-group" dropdown style="padding-right: 10px;">
-        <button id="button-basic" dropdownToggle type="button" class="btn btn-dark dropdown-toggle"
-          aria-controls="dropdown-basic">
-          {{itemsPerPage}} <span class="caret"></span>
-        </button>
-        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
-          role="menu" aria-labelledby="button-basic">
-          <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(10)">10</button></li>
-          <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(20)">20</button></li>
-          <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(50)">50</button></li>
-          <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(100)">100</button></li>
-        </ul>
-      </div>
-    </div>
-    <div class="p-2">
-      <pagination [totalItems]="totalItems" [(ngModel)]="page" (itemsPerPage)="itemsPerPage"
-        (pageChanged)="pageChanged($event)" [maxSize]=5
-        [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
-        lastText="&raquo;">
-      </pagination>
-    </div>
-</div>
+<ng-template [ngTemplateOutlet]="pagination"></ng-template>
 
 <!-- Modal temples -->
 <ng-template #deleteModalTemplate let-c="close" let-d="dismiss">
@@ -72,4 +49,31 @@
     <button type="button" class="btn btn-outline-dark" (click)="deleteUserFromModal()">Delete</button>
     <button type="button" class="btn btn-outline-dark" (click)="closeDeleteModal()">Cancel</button>
   </div>
+</ng-template>
+
+<ng-template #pagination>
+    <div class="d-flex justify-content-end">
+        <div class="p-2">
+            <div class="btn-group" dropdown style="padding-right: 10px;">
+                <button id="button-basic" dropdownToggle type="button" class="btn btn-dark dropdown-toggle"
+                aria-controls="dropdown-basic">
+                {{itemsPerPage}} <span class="caret"></span>
+                </button>
+                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                role="menu" aria-labelledby="button-basic">
+                <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(10)">10</button></li>
+                <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(20)">20</button></li>
+                <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(50)">50</button></li>
+                <li role="menuitem"><button class="dropdown-item" (click)="itemsPerPageChanged(100)">100</button></li>
+                </ul>
+            </div>
+            </div>
+        <div class="p-2">
+            <pagination [totalItems]="totalItems" [(ngModel)]="page" [itemsPerPage]="itemsPerPage"
+            (pageChanged)="pageChanged($event)" [maxSize]=5
+            [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
+            lastText="&raquo;">
+            </pagination>
+        </div>
+    </div>
 </ng-template>

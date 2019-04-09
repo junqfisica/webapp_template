@@ -26,7 +26,7 @@ export class UserListComponent extends ComponentUtils implements OnInit {
 
   constructor(private userService: UserService, private notificationService: NotificationService, private modalService: BsModalService) {
     super(notificationService) 
-    this.search()
+    this.searchUsers()
   }
 
   ngOnInit() {
@@ -47,7 +47,6 @@ export class UserListComponent extends ComponentUtils implements OnInit {
   openDeleteModal(template: TemplateRef<any>, user: User) {
     this.deleteModalRef = this.modalService.show(template);
     this.deleteUser = user;
-    console.log("Delete" + user);
   }
 
   closeDeleteModal() {
@@ -86,24 +85,24 @@ export class UserListComponent extends ComponentUtils implements OnInit {
 
   pageChanged(event: PageChangedEvent) {
     this.page = event.page;
-    this.search();
+    this.searchUsers();
   }
 
   itemsPerPageChanged(itemsPerPage: number) {
     this.itemsPerPage = itemsPerPage;
     this.page = 1;
-    this.search();
+    this.searchUsers();
   }
 
-  private search(){
+  private searchUsers(){
     this.userService.search(this.buildQueryParams()).subscribe(
       data => {
-        this.users = data.result
         this.totalItems = data.total
+        this.users = data.result
       },
       error => {
         console.log(error);
-        this.notificationService.showErrorMessage(error.error.message)
+        this.notificationService.showErrorMessage(error.message)
       }      
     )
     

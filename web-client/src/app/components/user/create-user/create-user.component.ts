@@ -1,14 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators'; 
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { User } from '../../../model/model.user';
 import { Role } from '../../../model/model.role';
 import { UserService } from '../../../services/user/user.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { AppValidador } from '../../../statics/form-validators';
-
+import { AppValidador, UserValidador } from '../../../statics/form-validators';
 
 @Component({
   selector: 'app-create-user',
@@ -20,7 +17,6 @@ export class CreateUserComponent implements OnInit {
   submitted = false;
   passwordMinLenght = 6
   roles: Role[] = []
-  hasUsername = false
 
   constructor(private formBuilder: FormBuilder, private userService: UserService, private notificationService: NotificationService) { 
     this.userService.getRoles().subscribe(
@@ -45,11 +41,11 @@ export class CreateUserComponent implements OnInit {
   buildForm(){
     const roleForm = {}
     for (const role of this.roles){
-      roleForm[role.role_id] = ['', {validators: [this.validadeRoles(this.roles)], updateOn: 'change'}]
+      roleForm[role.role_id] = ['', {validators: [UserValidador.validateRoles(this.roles)], updateOn: 'change'}]
     }
 
     this.userForm = this.formBuilder.group({
-      username: ['', {validators: [Validators.required, this.validadeUsername()], updateOn: 'change'}],
+      username: [null, {validators: [Validators.required], asyncValidators: [UserValidador.validateUsername(this.userService)], updateOn: 'change'}],
       firstName: ['', {validators: Validators.required, updateOn: 'change'}],
       lastName: ['', {validators: Validators.required, updateOn: 'change'}],
       password: ['', {validators: [Validators.required, Validators.minLength(this.passwordMinLenght)], updateOn: 'change'}],
@@ -57,56 +53,10 @@ export class CreateUserComponent implements OnInit {
       roles: this.formBuilder.group(roleForm)
     });
 
-    // Regiter username valueChanges to check if username is already taken.
-    this.userForm.get('username').valueChanges.pipe(
-      debounceTime(200),
-      // Avoid infinity loop.
-      distinctUntilChanged())
-      .subscribe(
-        username => {
-        this.checkUserAvailability(username)
-      }
-    );
   }
 
   get rolesForm (): FormGroup {return <FormGroup> this.userForm.get("roles")}
 
-  validadeRoles (roles : Role[]): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: boolean } | null => {
-      // console.log(control);
-      
-      for (const role of roles){
-        if (role.selected) {
-          return null
-        }
-      }
-      return { 'notSelected': true }
-    };
-  }
-
-  checkUserAvailability(username: string){
-    if(username) {
-      this.userService.isUsernameTaken(username).subscribe(
-        isTaken => {
-          this.hasUsername = isTaken
-          this.f.username.updateValueAndValidity()          
-        }, 
-        error => {
-          console.error(error);
-          this.notificationService.showErrorMessage(error.error.message)
-        }
-      );
-    }
-  }
-
-  validadeUsername (): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if(this.hasUsername) {
-        return { 'isTaken': true }
-      }
-      return null 
-    };
-  }
 
   onToogleRole(role: Role) {
     role.selected = !role.selected
@@ -158,19 +108,17 @@ export class CreateUserComponent implements OnInit {
     // Validade confirmPassowrd before submit.
     this.f.confirmPassword.updateValueAndValidity()
 
-    // stop here if form is invalid
+    // stop here if form is invalid   
     if (this.userForm.invalid) {
         return;
     }
 
     const user = this.formToUser();
     this.addRoles(user)
-
-    console.log(user)
+    
     this.userService.createUser(user).subscribe(
       wasCreated => {
         if (wasCreated) {
-          console.log("User created.")
           this.notificationService.showSuccessMessage("User " + user.username + " was created.")
         } else {
           console.log("Fail.")

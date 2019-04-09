@@ -14,8 +14,8 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  get(id: string): Observable<any> {
-    return this.http.get<any>(ServerUrl.rootUrl + '/api/user/' + id);
+  get(id: string): Observable<User> {
+    return this.http.get<User>(ServerUrl.rootUrl + '/api/user/' + id);
   }
 
   getAll(): Observable<User[]> {
@@ -32,6 +32,10 @@ export class UserService {
 
   createUser(user: User): Observable<Boolean> {
     return this.http.post<Boolean>(ServerUrl.rootUrl + '/api/user/create', user) 
+  }
+
+  updateUser(user: User): Observable<Boolean> {
+    return this.http.post<Boolean>(ServerUrl.rootUrl + '/api/user/update', user) 
   }
 
   getRoles(): Observable<Role[]>{
