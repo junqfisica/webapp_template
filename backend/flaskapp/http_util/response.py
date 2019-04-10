@@ -1,15 +1,12 @@
 import http
-from typing import overload
 
 from flask import jsonify
-
-from flaskapp.abstractClasses import AbstractStructure
-from flaskapp.models.base_model import BaseModel
 
 
 def string_to_response(string):
     """
-    Parse a string to an application/json
+    Parse a string to an application/json.
+
     :param string: The string to parse into json response.
     :return: The Json response.
     """
@@ -18,39 +15,20 @@ def string_to_response(string):
 
 def bool_to_response(b: bool):
     """
-    Parse a string to an application/json
+    Parse a string to an application/json.
+
     :param b: The boolean to parse into json response.
     :return: The Json response.
     """
     return jsonify(b)
 
-@overload
-def model_to_response(model: AbstractStructure):
+
+def model_to_response(entities):
     """
-    Parse a model to an application/json
-    :param model: Expected to be a child of AbstractStructure. The model to parse into json response.
-    :return: The Json response.
-    """
+    Parse an entity model or a list of it to an application/json.
 
-    return jsonify(model.to_dict())
-
-@overload
-def model_to_response(entities: [any]):
-    """
-    Parse a list of entities to an application/json
-    :param entities: A list of model to parse into json response.
-    :return: The Json response.
-    """
-
-    model_dict = [entity.to_dict() for entity in entities]
-
-    return jsonify(model_dict)
-
-
-def model_to_response(entities: BaseModel or [BaseModel]):
-    """
-    Parse a entity model or a list of it to an application/json
-    :param entities: The model or a list of it to parse into json response.
+    :param entities: Any object or a list of it that contains a method to_dict().
+        This method must return a dictionary.
     :return: The Json response.
     """
 
@@ -65,6 +43,7 @@ def model_to_response(entities: BaseModel or [BaseModel]):
 def empty_response():
     """
     Create a null response with the right http status.
+
     :return: The null response with http status: 204
     """
     return "", http.HTTPStatus.NO_CONTENT

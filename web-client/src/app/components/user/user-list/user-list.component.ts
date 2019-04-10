@@ -1,9 +1,12 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 
+import { Observable } from 'rxjs';
+import { mergeMap, map } from 'rxjs/operators';
+
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal'
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
-
+import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/';
 
 import { UserService } from '../../../services/user/user.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -23,20 +26,42 @@ export class UserListComponent extends ComponentUtils implements OnInit {
   page = 1;
   itemsPerPage = 10;
   totalItems = 0;
+  dataSource: Observable<User>
+  searchUsername: string
+  typeaheadLoading: boolean
 
   constructor(private userService: UserService, private notificationService: NotificationService, private modalService: BsModalService) {
     super(notificationService) 
     this.searchUsers()
+
+    // Search for user
+    this.dataSource = Observable.create((observer: any) => {
+      // Runs on every search
+      observer.next(this.searchUsername);
+    }).pipe(
+      mergeMap((term: string) => this.userService.search(this.buildQueryParams(term))
+      .pipe(
+        // Map search result observable to result list.
+        map((data) => {
+          return data.result;
+        }))
+      )
+    );
   }
 
   ngOnInit() {
   }
 
-  buildQueryParams(): HttpParams {
+  buildQueryParams(username="", orderBy=""): HttpParams {
     const params = {};
-    params['OrderBy'] = "";
+
+    params['SearchBy'] = "username";
+    params['SearchValue'] = username
+    params['OrderBy'] = orderBy;
+    params['OrderDesc'] = false
     params['Page'] = this.page;
     params['PerPage'] = this.itemsPerPage;
+
     return new HttpParams({ fromObject: params });
   }
 
@@ -94,11 +119,19 @@ export class UserListComponent extends ComponentUtils implements OnInit {
     this.searchUsers();
   }
 
-  private searchUsers(){
-    this.userService.search(this.buildQueryParams()).subscribe(
-      data => {
+  changeTypeaheadLoading(e: boolean): void {
+    this.typeaheadLoading = e;
+  }
+
+  typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.searchUsers(e.value, "username");
+  }
+
+  searchUsers(username="", orderBy=""){
+    this.userService.search(this.buildQueryParams(username, orderBy)).subscribe(
+      data => {        
         this.totalItems = data.total
-        this.users = data.result
+        this.users = data.result        
       },
       error => {
         console.log(error);

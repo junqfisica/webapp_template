@@ -73,11 +73,16 @@ export class AppComponent extends ComponentUtils {
     this.currentUser = LocalStorage.currentUser
   }
 
+  public syncUser(user: User) {
+    LocalStorage.removeCurrentUser()
+    LocalStorage.saveCurrentUser(user)
+    this.updateUser()
+  }
+
   public logout() {
     this.currentUser = null
     LocalStorage.removeCurrentUser()
     this.notificationService.showSuccessMessage("You were logged out.")
-    this.router.navigate(['/']);
-
+    this.router.navigate(['/login']);
   }
 }

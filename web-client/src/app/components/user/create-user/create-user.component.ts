@@ -15,7 +15,7 @@ import { AppValidador, UserValidador } from '../../../statics/form-validators';
 export class CreateUserComponent implements OnInit {
   userForm: FormGroup;
   submitted = false;
-  passwordMinLenght = 6
+  passwordMinLenght = AppValidador.passwordMinLenght
   roles: Role[] = []
 
   constructor(private formBuilder: FormBuilder, private userService: UserService, private notificationService: NotificationService) { 

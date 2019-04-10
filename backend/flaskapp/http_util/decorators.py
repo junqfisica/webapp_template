@@ -36,6 +36,7 @@ def query(class_to_map: AbstractStructure):
     """
     Gets the parameters in the http url request and map to a structure. The class must have the same keys as the
     object being passed.
+
     Import!! The keys in the json must have the exactly same names as the parameters in the class to be mapped.
 
     Example:  request -> /api/user/search , { QueryParameters }. Here QueryParameters is a json and each key
@@ -145,11 +146,12 @@ def post_from_form(*form_parameters: str):
 
 def secure(role):
     """
-    Check if user has a given role. If not raise PermissionDenied exception and
-    redirect a response to the client.
+    Check if user has a given role. If not, raise :class:`PermissionDenied` exception witch
+    sends an unauthorized response to the client.
+
     :param role: The role to be checked. Use de class Role from models to pass a secure value.
-    :return: The decorated method if user has the role. Otherwise it will redirect an unauthorized
-    response to the client.
+    :return: The decorated method if user has the role. Otherwise, it will redirect an unauthorized
+        response to the client.
     """
     def app_decorator(func):
         @wraps(func)

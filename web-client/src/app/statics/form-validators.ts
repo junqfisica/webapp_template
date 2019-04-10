@@ -1,4 +1,4 @@
-import { Validators, AbstractControl, ValidatorFn, AsyncValidator, ValidationErrors } from '@angular/forms';
+import { Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 
 import { debounceTime, distinctUntilChanged, take, switchMap, map } from 'rxjs/operators';
 
@@ -7,7 +7,10 @@ import { UserService } from '../services/user/user.service';
 import { Observable } from 'rxjs';
 import { of as observableOf } from 'rxjs';
 
+
 export class AppValidador extends Validators {
+
+  public static passwordMinLenght = 6
 
   private static parentControlsValue(control: AbstractControl, controlKey : string) {
     if (control != undefined &&  control.parent != undefined && control.parent.controls != undefined ){

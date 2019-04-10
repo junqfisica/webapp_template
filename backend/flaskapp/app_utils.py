@@ -19,13 +19,19 @@ def generate_id(length):
 def generate_token():
     """
     Creates a token with 32(16-bits) alphanumeric characters.
+
     :return: A token string.
     """
     return secrets.token_hex(16)
 
 
 def encrypt_password(psw: str):
-    """Encrypts a password and return the encripted string."""
+    """
+    Encrypts a password and return the encrypted string.
+
+    :param psw: The string to be encrypted.
+    :return: A encrypted string.
+    """
     return bcrypt.generate_password_hash(psw).decode("utf-8")
 
 

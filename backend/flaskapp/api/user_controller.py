@@ -7,9 +7,9 @@ from flaskapp import app_logger
 from flaskapp.api import users
 from flaskapp.http_util import response as response
 from flaskapp.http_util.decorators import secure, post, query
-from flaskapp.http_util.exceptions import UserNotFound
+from flaskapp.http_util.exceptions import UserNotFound, PermissionDenied
 from flaskapp.models import UserModel, Role, RoleModel
-from flaskapp.search.structures import UserSearch, SearchResult
+from flaskapp.search.structures import Search, SearchResult
 
 
 def __is_username_taken(username: str) -> bool:
@@ -51,15 +51,15 @@ def get_users():
 
 @users.route("/search", methods=["GET"])
 @secure(Role.ADMIN)
-@query(UserSearch)
-def search(user_search: UserSearch):
+@query(Search)
+def search(user_search: Search):
 
-    user_list: List[UserModel] = UserModel.pagination(per_page=user_search.PerPage, page=user_search.Page)
+    search_result: SearchResult = UserModel.search(user_search)
+    user_list: List[UserModel] = search_result.result
+    total = search_result.total
     model_dict = [entity.to_dict() for entity in user_list]
-    total = UserModel.total()
-    if users:
-        return response.model_to_response(SearchResult(result=model_dict, total=total))
-    return response.empty_response()
+
+    return response.model_to_response(SearchResult(result=model_dict, total=total))
 
 
 @users.route("/username/<string:username>", methods=["GET"])
@@ -106,6 +106,22 @@ def update_user(user: dict):
 
     # return response.bool_to_response(True)
     return response.bool_to_response(updated_user.save())
+
+
+@users.route("/userSelfUpdate", methods=["POST"])
+@secure(Role.USER)
+@post()
+def user_self_update(user: dict):
+    # update user
+    updated_user = UserModel.update_user(user, current_user.id, is_self_update=True)
+
+    if not updated_user:
+        raise PermissionDenied("Either, this user don't exists or you are trying to update someone that is not you.")
+
+    if updated_user.save():
+        return response.model_to_response(updated_user)
+
+    return response.empty_response()
 
 
 @users.route("/delete/<string:user_id>", methods=["DELETE"])

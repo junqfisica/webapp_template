@@ -1,7 +1,7 @@
 from flaskapp import app_logger
 from flaskapp.api import api
 from flaskapp.http_util import response
-from flaskapp.http_util.decorators import post, post_from_form
+from flaskapp.http_util.decorators import post_from_form
 from flaskapp.models import UserModel, TokenModel
 
 

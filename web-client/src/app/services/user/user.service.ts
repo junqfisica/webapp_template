@@ -38,6 +38,10 @@ export class UserService {
     return this.http.post<Boolean>(ServerUrl.rootUrl + '/api/user/update', user) 
   }
 
+  selfUpdate(user: User): Observable<User> {
+    return this.http.post<User>(ServerUrl.rootUrl + '/api/user/userSelfUpdate', user) 
+  }
+
   getRoles(): Observable<Role[]>{
     return this.http.get<Role[]>(ServerUrl.rootUrl + '/api/user/roles');
   }

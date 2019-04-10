@@ -10,6 +10,8 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,9 +21,10 @@ import { AuthService } from './services/auth/auth.service';
 import { LoginComponent } from './components/login/login.component';
 import { NotificationService } from './services/notification/notification.service';
 import { CreateUserComponent } from './components/user/create-user/create-user.component';
-import { UrlPermission } from './urlPermission/url.permission';
+import { LoginPermission, SameUserPermission, AdminPermission } from './urlPermission/url.permission';
 import { UserListComponent } from './components/user/user-list/user-list.component';
 import { UserEditComponent } from './components/user/user-edit/user-edit.component';
+import { AccountComponent } from './components/user/account/account.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +32,8 @@ import { UserEditComponent } from './components/user/user-edit/user-edit.compone
     LoginComponent,
     CreateUserComponent,
     UserListComponent,
-    UserEditComponent
+    UserEditComponent,
+    AccountComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +46,9 @@ import { UserEditComponent } from './components/user/user-edit/user-edit.compone
     TabsModule.forRoot(),
     ModalModule.forRoot(),
     BsDropdownModule.forRoot(),
-    PaginationModule.forRoot()
+    PaginationModule.forRoot(),
+    TypeaheadModule.forRoot(),
+    CollapseModule.forRoot()
   ],
   providers: [
     AuthService,
@@ -53,7 +59,9 @@ import { UserEditComponent } from './components/user/user-edit/user-edit.compone
       useClass: TokenInterceptor,
       multi: true
     },
-    UrlPermission
+    LoginPermission,
+    SameUserPermission,
+    AdminPermission
   ],
   bootstrap: [AppComponent]
 })
