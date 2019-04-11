@@ -3,7 +3,7 @@ from functools import wraps
 from flask import request
 from flask_login import current_user
 
-from flaskapp.abstractClasses import AbstractStructure
+from flaskapp.structures.abstractClasses import AbstractStructure
 from flaskapp.http_util.exceptions import PermissionDenied
 
 

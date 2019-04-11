@@ -2,7 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy.exc import SQLAlchemyError
 
 from flaskapp import db, app_logger
-from flaskapp.search.structures import Search, SearchResult
+from flaskapp.structures.structures import Search, SearchResult
 from flaskapp.http_util.exceptions import AppException
 
 
@@ -37,7 +37,7 @@ class BaseModel:
         :param dto: The data transfer object as a dictionary.
         :return: The model represent this class.
         """
-        # Map column names back to search fields. The keys must be equal to the column name.
+        # Map column names back to structures fields. The keys must be equal to the column name.
         clean_dict = {c.name: dto[c.name] for c in cls.__table__.columns}
         return cls(**clean_dict)
 
@@ -107,7 +107,7 @@ class BaseModel:
         search_column = cls._get_column(search.SearchBy)
 
         if search_column is None:
-            raise AppException("The column {} you are trying to search at don't exists.".format(search.SearchBy))
+            raise AppException("The column {} you are trying to structures at don't exists.".format(search.SearchBy))
 
         find_value = "%"
         if search.SearchValue:

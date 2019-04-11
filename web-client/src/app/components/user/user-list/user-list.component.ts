@@ -12,6 +12,8 @@ import { UserService } from '../../../services/user/user.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ComponentUtils } from '../../component.utils';
 import { User } from '../../../model/model.user';
+import { Search } from '../../../model/model.search';
+
 
 @Component({
   selector: 'app-user-list',
@@ -53,16 +55,13 @@ export class UserListComponent extends ComponentUtils implements OnInit {
   }
 
   buildQueryParams(username="", orderBy=""): HttpParams {
-    const params = {};
+    const searchParms = new Search("username", username).searchParms
+    searchParms.orderBy = orderBy
+    searchParms.orderDesc = false
+    searchParms.page = this.page
+    searchParms.perPage = this.itemsPerPage
 
-    params['SearchBy'] = "username";
-    params['SearchValue'] = username
-    params['OrderBy'] = orderBy;
-    params['OrderDesc'] = false
-    params['Page'] = this.page;
-    params['PerPage'] = this.itemsPerPage;
-
-    return new HttpParams({ fromObject: params });
+    return new HttpParams({ fromObject: searchParms });
   }
 
   isCurrentUser(user: User): boolean {
@@ -127,7 +126,7 @@ export class UserListComponent extends ComponentUtils implements OnInit {
     this.searchUsers(e.value, "username");
   }
 
-  searchUsers(username="", orderBy=""){
+  searchUsers(username="", orderBy="username"){
     this.userService.search(this.buildQueryParams(username, orderBy)).subscribe(
       data => {        
         this.totalItems = data.total

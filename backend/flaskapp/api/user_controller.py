@@ -9,7 +9,7 @@ from flaskapp.http_util import response as response
 from flaskapp.http_util.decorators import secure, post, query
 from flaskapp.http_util.exceptions import UserNotFound, PermissionDenied
 from flaskapp.models import UserModel, Role, RoleModel
-from flaskapp.search.structures import Search, SearchResult
+from flaskapp.structures.structures import Search, SearchResult
 
 
 def __is_username_taken(username: str) -> bool:
@@ -55,11 +55,7 @@ def get_users():
 def search(user_search: Search):
 
     search_result: SearchResult = UserModel.search(user_search)
-    user_list: List[UserModel] = search_result.result
-    total = search_result.total
-    model_dict = [entity.to_dict() for entity in user_list]
-
-    return response.model_to_response(SearchResult(result=model_dict, total=total))
+    return response.model_to_response(search_result)
 
 
 @users.route("/username/<string:username>", methods=["GET"])
