@@ -59,11 +59,15 @@ def create_app(config_class=Config):
     # this must be imported only after flask configuration.
     from flaskapp.api import api as api_blueprint
     from flaskapp.api import users as users_blueprint
+    from flaskapp.main.index import main as main_blueprint
     from flaskapp.http_util.exceptions import errors
 
     # register new APIs here.
     app.register_blueprint(api_blueprint, url_prefix='/api')
     app.register_blueprint(users_blueprint, url_prefix='/api/user')
+
+    # redirect to Angular build.
+    app.register_blueprint(main_blueprint)
 
     # register error blueprint.
     app.register_blueprint(errors)
