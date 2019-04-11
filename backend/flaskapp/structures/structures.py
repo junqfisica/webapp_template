@@ -1,10 +1,9 @@
-import sys
 import traceback
 from typing import NamedTuple
 
 from flaskapp import app_logger
-from flaskapp.structures.abstractClasses import AbstractStructure
 from flaskapp.http_util.exceptions import AppException
+from flaskapp.structures.abstractClasses import AbstractStructure
 
 
 def validate_dictionary(cls: NamedTuple, dic: dict):
@@ -70,12 +69,12 @@ class Search(AbstractStructure, NamedTuple):
     # noinspection PyTypeChecker
     @classmethod
     def from_dict(cls, dictionary):
-        new_d = validate_dictionary(cls, dictionary)
         try:
+            new_d = validate_dictionary(cls, dictionary)
             return cls(**new_d)
 
-        except TypeError as error:
-            traceback.print_exc(limit=2, file=sys.stdout)
+        except Exception as error:
+            # traceback.print_exc(limit=2, file=sys.stdout)
             app_logger.error(traceback.format_exc())
             raise AppException(str(error))
 
@@ -106,11 +105,10 @@ class SearchResult(AbstractStructure, NamedTuple):
     # noinspection PyTypeChecker
     @classmethod
     def from_dict(cls, dictionary):
-        new_d = validate_dictionary(cls, dictionary)
         try:
+            new_d = validate_dictionary(cls, dictionary)
             return cls(**new_d)
 
-        except TypeError as error:
-            traceback.print_exc(limit=2, file=sys.stdout)
+        except Exception as error:
             app_logger.error(traceback.format_exc())
             raise AppException(str(error))

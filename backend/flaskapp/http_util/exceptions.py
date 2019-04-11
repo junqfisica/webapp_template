@@ -1,8 +1,6 @@
 import http
 
-from flask import jsonify
-
-from flaskapp import app
+from flask import jsonify, Blueprint
 
 
 # Exceptions Classes
@@ -47,21 +45,24 @@ def error_to_response(error: AppException):
 
 # Register exceptions in the app.
 
-@app.errorhandler(AppException)
+errors = Blueprint('errors', __name__)
+
+
+@errors.app_errorhandler(AppException)
 def handle_app_exception(error: AppException):
     return error_to_response(error)
 
 
-@app.errorhandler(UserNotFound)
+@errors.app_errorhandler(UserNotFound)
 def handle_user_not_found(error: AppException):
     return error_to_response(error)
 
 
-@app.errorhandler(PermissionDenied)
+@errors.app_errorhandler(PermissionDenied)
 def handle_permission_denied(error: AppException):
     return error_to_response(error)
 
 
-@app.errorhandler(RoleNotFound)
+@errors.app_errorhandler(RoleNotFound)
 def handle_role_not_found(error: AppException):
     return error_to_response(error)

@@ -1,37 +1,17 @@
-import logging, coloredlogs
+import coloredlogs
+import logging
 
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flaskapp.config import Config
 
-# Database configuration.
-db_url = "localhost:5432"
-db_name = "app"
-db_user = "app"
-db_password = "app"
-sqlalchemy_database_url = "postgresql://{db_user}:{db_password}@{db_url}/{db_name}".\
-    format(db_user=db_user, db_password=db_password, db_url=db_url, db_name=db_name)
-
-
-# App configuration.
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_database_url
-app.config['SECRET_KEY'] = '5780628bb0b13ce0c676dfde280ba187'
-
-# start db.
-db = SQLAlchemy(app)
-
-# set CORS-filter
-CORS(app)
-
-bcrypt = Bcrypt(app)
-
+db = SQLAlchemy()
+bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
-
-login_manager.init_app(app)
 
 
 def create_logger():
@@ -62,14 +42,38 @@ def create_logger():
     return logger
 
 
+def create_app(config_class=Config):
+
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    # start db.
+    db.init_app(app)
+
+    # set CORS-filter
+    CORS(app)
+
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+
+    # this must be imported only after flask configuration.
+    from flaskapp.api import api as api_blueprint
+    from flaskapp.api import users as users_blueprint
+    from flaskapp.http_util.exceptions import errors
+
+    # register new APIs here.
+    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blueprint(users_blueprint, url_prefix='/api/user')
+
+    # register error blueprint.
+    app.register_blueprint(errors)
+
+    app_logger.info("Webservice started.")
+
+    return app
+
+
 app_logger = create_logger()
-app_logger.info("Webservice started.")
 
-# this must be imported only after flask configuration.
-from flaskapp.api import api as api_blueprint
-from flaskapp.api import users as users_blueprint
 
-# register new APIs here.
-app.register_blueprint(api_blueprint, url_prefix='/api')
-app.register_blueprint(users_blueprint, url_prefix='/api/user')
 

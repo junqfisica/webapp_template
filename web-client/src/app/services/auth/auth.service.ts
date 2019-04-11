@@ -11,7 +11,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  login(user: User): Observable<any> {
+  login(user: User): Observable<User> {
     // creating base64 encoded String from user name and password
     // const base64Credential: string = btoa(user.username + ':' + user.password);
 
