@@ -43,9 +43,11 @@ class Search(AbstractStructure, NamedTuple):
     Use the method from_dict to create an instance from a dictionary.
 
     Fields:
-        SearchBy: A table's column's name to search.
+        SearchBy: A table's column's name to search. You can pass multiple values by using comma separation.
+            e.g: "username, name", it will perform a search in this to columns.
 
-        SearchValue: The value to search.
+        SearchValue: The value to search. You can pass multiple values by using comma separation.
+            e.g: "John, Sara", it will perform a search for this values for the given columns.
 
         Page: The current page to return.
 
@@ -54,6 +56,15 @@ class Search(AbstractStructure, NamedTuple):
         OrderBy: A table's column's name to order.
 
         OrderDesc: True if the order must be descendant.
+
+        MapColumnAndValue (default = False): If True it will consider a 1:1 mapping for SearchBy:SearchValue.
+            e.g: Column -> "username, name", Values -> "admin, Sara".
+
+            If True: This will search for username = like(%admin%) and name = like(%Sara%).
+
+            If False: This will search for username = like(%admin%, %Sara%) and name = like(%admin%, %Sara%).
+
+        Use_AND_Operator (default = False): Makes the search with AND instead of OR.
     """
 
     SearchBy: str
@@ -61,7 +72,9 @@ class Search(AbstractStructure, NamedTuple):
     Page: int
     PerPage: int
     OrderBy: str
-    OrderDesc: bool
+    OrderDesc: bool = False
+    MapColumnAndValue: bool = False
+    Use_AND_Operator: bool = False
 
     def to_dict(self):
         return self._asdict()

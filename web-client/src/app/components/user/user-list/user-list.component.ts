@@ -41,7 +41,7 @@ export class UserListComponent extends ComponentUtils implements OnInit {
       // Runs on every search
       observer.next(this.searchUsername);
     }).pipe(
-      mergeMap((term: string) => this.userService.search(this.buildQueryParams(term))
+      mergeMap((term: string) => this.userService.search(this.buildQueryParams("username, name, surname", term))
       .pipe(
         // Map search result observable to result list.
         map((data) => {
@@ -54,8 +54,8 @@ export class UserListComponent extends ComponentUtils implements OnInit {
   ngOnInit() {
   }
 
-  buildQueryParams(username="", orderBy=""): HttpParams {
-    const searchParms = new Search("username", username).searchParms
+  buildQueryParams(searchBy="username", username="", orderBy=""): HttpParams {
+    const searchParms = new Search(searchBy, username).searchParms
     searchParms.orderBy = orderBy
     searchParms.orderDesc = false
     searchParms.page = this.page
@@ -123,11 +123,11 @@ export class UserListComponent extends ComponentUtils implements OnInit {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.searchUsers(e.value, "username");
+    this.searchUsers("username", e.value, "username");
   }
 
-  searchUsers(username="", orderBy="username"){
-    this.userService.search(this.buildQueryParams(username, orderBy)).subscribe(
+  searchUsers(searchBy="username", username="", orderBy="username"){
+    this.userService.search(this.buildQueryParams(searchBy, username, orderBy)).subscribe(
       data => {        
         this.totalItems = data.total
         this.users = data.result        

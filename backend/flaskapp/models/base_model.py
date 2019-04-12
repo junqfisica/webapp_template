@@ -1,4 +1,4 @@
-from sqlalchemy import Column
+from sqlalchemy import Column, or_, and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from flaskapp import db, app_logger
@@ -80,7 +80,7 @@ class BaseModel:
             raise AttributeError(cls.__name__ + " is not subclass of " + db.Model.__name__)
 
     @classmethod
-    def _get_column(cls, c_name: str):
+    def _get_column_from_name(cls, c_name: str):
         """
         Gets the column in the table for the given c_name.
 
@@ -90,7 +90,7 @@ class BaseModel:
 
         cls.__class_validation()
         for column in cls.__table__.columns:
-            if c_name.lower() == column.name:
+            if c_name.lower().strip() == column.name:
                 return column
         return None
 
@@ -103,23 +103,37 @@ class BaseModel:
         :return: A SearchResult instance
         """
 
-        order_by = cls._get_column(search.OrderBy)
-        search_column = cls._get_column(search.SearchBy)
+        search_columns = []
+        for column_name in search.SearchBy.split(","):  # accepts multiple columns split by ,
+            search_column = cls._get_column_from_name(column_name)
+            if search_column is None:
+                raise AppException("The column {} you are trying to search at don't exists.".format(column_name))
+            search_columns.append(search_column)
 
-        if search_column is None:
-            raise AppException("The column {} you are trying to structures at don't exists.".format(search.SearchBy))
+        find_values = []
+        for value in search.SearchValue.split(","):  # accepts multiple values split by ,
+            find_value = "%{}%".format(value.strip())
+            find_values.append(find_value)
 
-        find_value = "%"
-        if search.SearchValue:
-            find_value = "%{}%".format(search.SearchValue)
-        search_filter = search_column.like(find_value)
+        # construct search filter.
+        if search.MapColumnAndValue:
+            # makes a 1:1 search for column:value
+            search_filters = [sc.like(value) for sc, value in zip(search_columns, find_values)]
+        else:
+            # makes n:x search for column:value
+            search_filters = [sc.like(value) for sc in search_columns for value in find_values]
 
+        order_by = cls._get_column_from_name(search.OrderBy)
         if search.OrderDesc and order_by is not None:
             order_by = order_by.desc()
 
-        page = cls.query.filter(search_filter). \
-            order_by(order_by). \
-            paginate(per_page=search.PerPage, page=search.Page)
+        # AND or OR
+        if search.Use_AND_Operator:
+            query = cls.query.filter(and_(sf for sf in search_filters)).order_by(order_by)
+        else:
+            query = cls.query.filter(or_(sf for sf in search_filters)).order_by(order_by)
+
+        page = query.paginate(per_page=search.PerPage, page=search.Page)
 
         entities = page.items
         total = page.total

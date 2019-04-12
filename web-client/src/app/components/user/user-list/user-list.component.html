@@ -15,10 +15,11 @@
       [typeaheadOptionsLimit]="10"
       typeaheadWaitMs="500"
       typeaheadOptionField="username"
-      placeholder="Username"
+      [typeaheadItemTemplate]="userTypeaheadTemplate"
+      placeholder="Username or Name"
       class="form-control mr-sm-2">
     <button class="btn btn-outline-dark my-2 my-sm-0" type="submit"
-      (click)="searchUsers(searchUsername,'username')" [disabled]="typeaheadLoading">
+      (click)="searchUsers('username, name, surname', searchUsername,'username')" [disabled]="typeaheadLoading">
         <span *ngIf="typeaheadLoading" class="fa fa-spinner fa-spin"></span>
         <span *ngIf="!typeaheadLoading" class="fa fa-search"></span>
     </button>
@@ -69,6 +70,10 @@
     <button type="button" class="btn btn-outline-dark" (click)="deleteUserFromModal()">Delete</button>
     <button type="button" class="btn btn-outline-dark" (click)="closeDeleteModal()">Cancel</button>
   </div>
+</ng-template>
+
+<ng-template #userTypeaheadTemplate let-user="item">
+  <i>Username: {{user.username}}, Name: {{ user.name }} {{user.surname}}</i>
 </ng-template>
 
 <ng-template #pagination>

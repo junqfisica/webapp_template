@@ -5,7 +5,9 @@ export class Search {
       "orderBy" : "",
       "orderDesc" : null,
       "page" : null,
-      "perPage" : null 
+      "perPage" : null,
+      "mapColumnAndValue" : null,
+      "use_AND_Operator" : null 
     };
   
     constructor(searchBy: string, value: string) {
@@ -14,5 +16,7 @@ export class Search {
       this.searchParms.orderDesc = false 
       this.searchParms.page = 1
       this.searchParms.perPage = 10
+      this.searchParms.mapColumnAndValue = false
+      this.searchParms.use_AND_Operator = false
     }
 }
