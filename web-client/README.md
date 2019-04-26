@@ -7,7 +7,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 This project uses [Bootstrap](https://getbootstrap.com/) and [ngx-bootstrap](https://valor-software.com/ngx-bootstrap/#/documentation#getting-started)
 
 ### Installing Bootstrap dependency
-`sudo npm install --save bootstrap@4 jquery@3.3.1 font-awesome`
+`sudo npm install --save bootstrap@4 jquery@3.4.0 font-awesome`
 
 `sudo npm install ngx-bootstrap --save`
 
