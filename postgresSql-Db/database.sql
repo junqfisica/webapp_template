@@ -81,5 +81,6 @@ create table APP.T_USER_ROLES (
 grant all privileges on table APP.T_USER_ROLES to APP;
 
 insert into APP.T_USER_ROLES values ('A7BU1ZBUgL','ROLE_ADMIN');
+insert into APP.T_USER_ROLES values ('A7BU1ZBUgL','ROLE_USER');
 insert into APP.T_USER_ROLES values ('B7BU2ZBUgL','ROLE_USER');
 
