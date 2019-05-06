@@ -4,7 +4,7 @@ from flask_login import UserMixin
 
 from flaskapp import db, bcrypt, login_manager, app_logger, app_utils
 from flaskapp.http_util import exceptions
-from flaskapp.models import RelationShip, TableNames, TokenModel, UserRoleModel, RoleModel
+from flaskapp.models import RelationShip, TableNames, TokenModel, UserRoleModel, RoleModel, RightModel, UserRightModel
 from flaskapp.models.base_model import BaseModel
 
 
@@ -20,6 +20,7 @@ class UserModel(db.Model, BaseModel, UserMixin):
     surname = db.Column(db.String(50), unique=False, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     roles = db.relationship(RelationShip.USER_ROLE, backref="user", cascade="save-update, merge, delete", lazy=True)
+    rights = db.relationship(RelationShip.USER_RIGHT, backref="user", cascade="save-update, merge, delete", lazy=True)
     token = db.relationship(RelationShip.TOKEN, backref="user", cascade="save-update, merge, delete", lazy=True)
 
     def __repr__(self):
@@ -29,6 +30,11 @@ class UserModel(db.Model, BaseModel, UserMixin):
     def get_roles(self):
         """ Get a list of roles for this user."""
         return [role.role_id for role in self.roles if role]
+
+    @property
+    def get_rights(self):
+        """ Get a list of rights for this user."""
+        return [right.right_id for right in self.rights if right]
 
     @property
     def get_token(self):
@@ -47,6 +53,8 @@ class UserModel(db.Model, BaseModel, UserMixin):
 
         # add roles
         dict_representation["roles"] = self.get_roles
+        # add rights
+        dict_representation["rights"] = self.get_rights
         # add token
         dict_representation["token"] = self.get_token
 
@@ -67,6 +75,12 @@ class UserModel(db.Model, BaseModel, UserMixin):
         else:
             return False
 
+    def has_right(self, right):
+        if right in self.get_rights:
+            return True
+        else:
+            return False
+
     def add_role(self, role_id: str, current_user_id=None):
         """
         Add role to this user.
@@ -80,6 +94,19 @@ class UserModel(db.Model, BaseModel, UserMixin):
             user_role = UserRoleModel(user_id=self.id, role_id=role_id, lastchange_by=current_user_id)
             self.roles.append(user_role)
 
+    def add_right(self, right_id: str, current_user_id=None):
+        """
+        Add right to this user.
+
+        Important: This will not be added to the database until user is saved.
+
+        :param right_id: The role id, e.g: "RIGHT_USER".
+        :param current_user_id: The current id of the user that is making this change.
+        """
+        if RightModel.is_valid_right(right_id) and not self.has_right(right_id):
+            user_right = UserRightModel(user_id=self.id, right_id=right_id, lastchange_by=current_user_id)
+            self.rights.append(user_right)
+
     def add_roles(self, roles_ids: List[str], current_user_id=None):
         """
         Add roles to this user.
@@ -92,12 +119,31 @@ class UserModel(db.Model, BaseModel, UserMixin):
         for role_id in roles_ids:
             self.add_role(role_id, current_user_id)
 
+    def add_rights(self, right_ids: List[str], current_user_id=None):
+        """
+        Add rights to this user.
+
+        Important: This will not be added to the database until user is saved.
+
+        :param right_ids: A list of right's ids, e.g: ["RIGHT_USER", "RIGHT_USER_CREATE"].
+        :param current_user_id: The current id of the user that is making this change.
+        """
+        for right_id in right_ids:
+            self.add_right(right_id, current_user_id)
+
     def _delete_roles(self):
         """
         This will remove all roles from this user at the database.
         """
         for role in self.roles:
             role.delete()
+
+    def _delete_rights(self):
+        """
+        This will remove all rights from this user at the database.
+        """
+        for right in self.rights:
+            right.delete()
 
     @classmethod
     def create_user(cls, user_dict: dict, current_user_id=None):
@@ -117,9 +163,14 @@ class UserModel(db.Model, BaseModel, UserMixin):
 
         # Add role relational field.
         roles_id = user_dict.get("roles")
-        if not roles_id:
+        if not roles_id and len(roles_id) < 1:
             raise exceptions.RoleNotFound("User must have at least one role assigned.")
         user.add_roles(roles_ids=roles_id, current_user_id=current_user_id)
+
+        # Add right relational field.
+        right_ids = user_dict.get("rights")
+        if right_ids and len(right_ids) > 0:
+            user.add_rights(right_ids=right_ids, current_user_id=current_user_id)
 
         return user
 
@@ -155,17 +206,20 @@ class UserModel(db.Model, BaseModel, UserMixin):
         if valid_user.password != user.password and is_self_update:
             valid_user.password = app_utils.encrypt_password(user.password)
 
-        # only update roles if is not self update. (Only admin can update roles.)
+        # only update roles or rights if is not self update. (Only admin can update roles.)
         if not is_self_update:
             # Update role relational field.
             roles_ids = user_dict.get("roles")
+            right_ids = user_dict.get("rights")
             if not roles_ids:
                 raise exceptions.RoleNotFound("User must have at least one role assigned.")
 
             # delete all roles
             valid_user._delete_roles()
+            valid_user._delete_rights()
             # add new ones.
             valid_user.add_roles(roles_ids=roles_ids, current_user_id=current_user_id)
+            valid_user.add_rights(right_ids=right_ids, current_user_id=current_user_id)
 
         return valid_user
 

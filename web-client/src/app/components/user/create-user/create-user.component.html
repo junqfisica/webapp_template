@@ -65,23 +65,19 @@
                 </div>
               </div>
             </tab>
-            <!--Rechte 
             <tab heading="Rights" id="rightTab">
-              <div class="form-group mt-3">
-                <div class="col-sm-10">
+              <div class="form-group" formGroupName="rights">
                   <div class="form-check">
                     <div *ngFor="let right of rights">
-                      <input class="form-check-input" id="{{right.authority}}" type="checkbox" 
-                      [checked]="right.selected" (change)="right.selected = !right.selected" 
-                      [disabled]="right.containedInRole">
-                      <label class="form-check-label" for="{{right.authority}}">
+                      <input type="checkbox" formControlName="{{right.right_id}}" id="{{right.right_id}}" class="form-check-input" 
+                      [checked]="right.selected" (change)="onToogleRight(right)"/>
+                      <label class="form-check-label" for="{{right.right_id}}">
                         {{right.label}}
                       </label>
                     </div>
                   </div>
-                </div>
               </div>
-            </tab> Tab-->
+            </tab> 
           </tabset>
           <div class="form-group">
             <button [disabled]="userForm.pending" class="btn btn-info">Register</button>

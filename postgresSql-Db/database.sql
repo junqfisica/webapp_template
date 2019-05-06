@@ -25,6 +25,11 @@ create table APP.S_RIGHTS
 );
 grant all privileges on table APP.S_RIGHTS to APP;
 
+insert into APP.S_RIGHTS values ('RIGHT_USER','View users');
+insert into APP.S_RIGHTS values ('RIGHT_USER_CREATE','Create users');
+insert into APP.S_RIGHTS values ('RIGHT_USER_EDIT','Edit users');
+insert into APP.S_RIGHTS values ('RIGHT_USER_DELETE','Delete users');
+
 create table APP.S_ROLES
 (
     ROLE_ID varchar(50) not null,
@@ -45,6 +50,11 @@ create table APP.T_ROLES_RIGHTS
     foreign key (RIGHT_ID) references APP.S_RIGHTS (RIGHT_ID) on delete restrict
 );
 grant all privileges on table APP.T_ROLES_RIGHTS to APP;
+
+insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER');
+insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_CREATE');
+insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_EDIT');
+insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_DELETE');
 
 create table APP.T_ACCESS_TOKENS (
 	ID varchar(16) not null,
@@ -83,4 +93,16 @@ grant all privileges on table APP.T_USER_ROLES to APP;
 insert into APP.T_USER_ROLES values ('A7BU1ZBUgL','ROLE_ADMIN');
 insert into APP.T_USER_ROLES values ('A7BU1ZBUgL','ROLE_USER');
 insert into APP.T_USER_ROLES values ('B7BU2ZBUgL','ROLE_USER');
+
+create table APP.T_USER_RIGHTS
+(
+    USER_ID varchar(16) not null,
+    RIGHT_ID varchar(50) not null,
+    LASTCHANGE_BY varchar(16),
+    LASTCHANGE_AT timestamp,
+    primary key (USER_ID, RIGHT_ID),
+    foreign key (USER_ID) references APP.T_USER (ID) on delete restrict,
+    foreign key (RIGHT_ID) references APP.S_RIGHTS (RIGHT_ID) on delete restrict
+);
+grant all privileges on table APP.T_USER_RIGHTS to APP;
 

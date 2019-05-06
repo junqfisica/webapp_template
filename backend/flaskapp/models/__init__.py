@@ -4,6 +4,7 @@ class RelationShip:
     Keep track of models class name for being used in relational tables.
     """
     USER_ROLE = "UserRoleModel"
+    USER_RIGHT = "UserRightModel"
     USER = "UserModel"
     ROLE = "RoleModel"
     TOKEN = "TokenModel"
@@ -19,7 +20,10 @@ class TableNames:
     T_USER = "t_user"
     T_TOKEN = "t_access_tokens"
     S_ROLES = "s_roles"
+    S_RIGHTS = "s_rights"
     T_USER_ROLES = "t_user_roles"
+    T_USER_RIGHTS = "t_user_rights"
+    T_ROLES_RIGHTS = "t_roles_rights"
 
 
 class Role:
@@ -31,5 +35,5 @@ class Role:
 # Import models. Watch for circular dependencies.
 from flaskapp.models.base_model import BaseModel
 from flaskapp.models.token_model import TokenModel
-from flaskapp.models.roles_model import RoleModel, UserRoleModel
+from flaskapp.models.roles_model import RoleModel, UserRoleModel, RightModel, RolesRightsModel, UserRightModel
 from flaskapp.models.user_model import UserModel

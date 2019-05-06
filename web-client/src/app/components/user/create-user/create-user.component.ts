@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import { forkJoin } from 'rxjs';
+
 import { User } from '../../../model/model.user';
 import { Role } from '../../../model/model.role';
 import { UserService } from '../../../services/user/user.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AppValidador, UserValidador } from '../../../statics/form-validators';
+import { RoleRights } from '../../../model/model.role-rights';
+import { Right } from '../../../model/model.rights';
 
 @Component({
   selector: 'app-create-user',
@@ -17,25 +21,46 @@ export class CreateUserComponent implements OnInit {
   submitted = false;
   passwordMinLenght = AppValidador.passwordMinLenght
   roles: Role[] = []
+  rights: Right[] = []
+  roleRights: RoleRights[] = []
 
   constructor(private formBuilder: FormBuilder, private userService: UserService, private notificationService: NotificationService) { 
-    this.userService.getRoles().subscribe(
-      roles=> {
-        roles.forEach(role => {
-          this.roles.push(role)
-        });
+    forkJoin(
+      this.userService.getRoles(),
+      this.userService.getRights()
+    ).subscribe(
+      data => {
+        this.roles = data[0]
+        this.rights = data[1]
+        this.mapRolesAndRights()
         this.buildForm()
-      }, 
+      },
       error => {
         console.log(error)
         notificationService.showErrorMessage(error.error.message)
       }
-      
     );
   }
 
   ngOnInit() {
     
+  }
+
+  private mapRolesAndRights(){
+    this.roles.forEach(role => {
+      this.userService.roleRights(role.role_id).subscribe(
+        right_ids => {
+          const roleRight = new RoleRights()
+          roleRight.role_id = role.role_id
+          roleRight.right_ids = right_ids
+          this.roleRights.push(roleRight)
+        },
+        error => {
+          this.notificationService.showErrorMessage(error.message)
+          console.log(error);
+        }
+      )
+    })    
   }
 
   buildForm(){
@@ -44,23 +69,63 @@ export class CreateUserComponent implements OnInit {
       roleForm[role.role_id] = ['', {validators: [UserValidador.validateRoles(this.roles)], updateOn: 'change'}]
     }
 
+    const rightForm = {}
+    for (const right of this.rights){
+      rightForm[right.right_id] = ['', {updateOn: 'change'}]
+    }
+
     this.userForm = this.formBuilder.group({
       username: [null, {validators: [Validators.required], asyncValidators: [UserValidador.validateUsername(this.userService)], updateOn: 'change'}],
       firstName: ['', {validators: Validators.required, updateOn: 'change'}],
       lastName: ['', {validators: Validators.required, updateOn: 'change'}],
       password: ['', {validators: [Validators.required, Validators.minLength(this.passwordMinLenght)], updateOn: 'change'}],
       confirmPassword: ['', {validators: [AppValidador.match("password")], updateOn: 'change'}],
-      roles: this.formBuilder.group(roleForm)
+      roles: this.formBuilder.group(roleForm),
+      rights: this.formBuilder.group(rightForm)
     });
 
   }
 
+  // convenience getter for easy access to form fields
+  get f() { return this.userForm.controls }
+  get roleControls() { return this.rolesForm.controls}
   get rolesForm (): FormGroup {return <FormGroup> this.userForm.get("roles")}
+  get rightsForm (): FormGroup {return <FormGroup> this.userForm.get("rights")}
 
+  private getRight(right_id): Right {
+    let result = null
+    this.rights.forEach( right => {
+      if (right.right_id == right_id) {
+        result = right
+        return
+      }
+    })
+    return result
+  }
 
-  onToogleRole(role: Role) {
-    role.selected = !role.selected
+  private selectRightsByRole(role_id: string, select: boolean){
+    
+    let right_ids: string[] = []
+    for (const rr of this.roleRights) {
+      if (rr.role_id == role_id) {
+        right_ids = rr.right_ids
+        break
+      } 
+    }
 
+    right_ids.forEach(right_id => {
+      const right = this.getRight(right_id)
+      right.selected = select
+      if (right.selected){
+        this.rightsForm.get(right_id).disable() 
+      } else {
+        this.rightsForm.get(right_id).enable() 
+      }
+    })
+    
+  }
+
+  private selectRole(role: Role) {
     if (role.role_id == "ROLE_ADMIN" && role.selected) {
       this.roles.forEach(role => {
         if (role.role_id != "ROLE_ADMIN"){
@@ -71,6 +136,14 @@ export class CreateUserComponent implements OnInit {
     } else if (role.role_id == "ROLE_ADMIN" && !role.selected){
       this.roles.forEach(role =>  this.rolesForm.get(role.role_id).enable())
     }
+  }
+
+  onToogleRole(role: Role) {
+    role.selected = !role.selected
+
+    this.selectRightsByRole(role.role_id,role.selected)
+
+    this.selectRole(role)
 
     // Force validation of roles to sync. 
     this.roles.forEach(role => {      
@@ -79,9 +152,9 @@ export class CreateUserComponent implements OnInit {
     
   }
 
-  // convenience getter for easy access to form fields
-  get f() { return this.userForm.controls }
-  get roleControls() { return this.rolesForm.controls}
+  onToogleRight(right: Right) {
+    right.selected = !right.selected
+  }
 
   private formToUser(): User{
     const user = new User()
@@ -102,6 +175,15 @@ export class CreateUserComponent implements OnInit {
     })
   }
 
+  addRights(user: User) {
+    // Add selected
+    this.rights.forEach(right => {
+      if (right.selected){
+        user.rights.push(right.right_id)
+      }
+    })
+  }
+
   onSubmit() {
     this.submitted = true;
     
@@ -115,6 +197,7 @@ export class CreateUserComponent implements OnInit {
 
     const user = this.formToUser();
     this.addRoles(user)
+    this.addRights(user)
     
     this.userService.createUser(user).subscribe(
       wasCreated => {

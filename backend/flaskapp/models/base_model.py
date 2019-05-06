@@ -210,7 +210,7 @@ class BaseModel:
         :param kwarg: The column name as key and the value to match, e.g username="Jon". If more than one
             filter is given the query will use AND to join it.
             Important: you must pass at least one kwarg to this method, otherwise a ValueError will raise.
-        :return: The entity if is_unique=True and it exists or a list of entity if is_unique=False and exists.
+        :return: The entity if get_first=True and it exists or a list of entity if get_first=False and exists.
             None, otherwise.
         """
         # Validate class before query

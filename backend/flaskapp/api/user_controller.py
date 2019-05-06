@@ -8,7 +8,7 @@ from flaskapp.api import users
 from flaskapp.http_util import response as response
 from flaskapp.http_util.decorators import secure, post, query
 from flaskapp.http_util.exceptions import UserNotFound, PermissionDenied
-from flaskapp.models import UserModel, Role, RoleModel
+from flaskapp.models import UserModel, Role, RoleModel, RightModel, RolesRightsModel
 from flaskapp.structures.structures import Search, SearchResult
 
 
@@ -35,6 +35,25 @@ def get_roles():
         return response.model_to_response(roles)
 
     return response.empty_response()
+
+
+@users.route("/rights", methods=["GET"])
+def get_rights():
+    rights: List[RightModel] = RightModel.get_all(order_by=RightModel.label)
+    if rights:
+        return response.model_to_response(rights)
+
+    return response.empty_response()
+
+
+@users.route("/roleRights/<string:role_id>", methods=["GET"])
+@secure(Role.USER)
+def get_rights_from_roles(role_id: str):
+    right_ids: List[str] = RolesRightsModel.get_rights_by_role(role_id)
+    if right_ids:
+        return response.string_to_response(right_ids)
+
+    return response.string_to_response([])
 
 
 @users.route("/all", methods=["GET"])

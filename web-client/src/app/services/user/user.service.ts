@@ -7,6 +7,7 @@ import { ServerUrl } from '../../statics/server-url';
 import { User } from '../../model/model.user';
 import { Role } from '../../model/model.role';
 import { SearchResult } from '../../model/model.search-result';
+import { Right } from '../../model/model.rights';
 
 
 @Injectable()
@@ -44,6 +45,14 @@ export class UserService {
 
   getRoles(): Observable<Role[]>{
     return this.http.get<Role[]>(ServerUrl.rootUrl + '/api/user/roles');
+  }
+
+  getRights(): Observable<Right[]>{
+    return this.http.get<Right[]>(ServerUrl.rootUrl + '/api/user/rights');
+  }
+
+  roleRights(role_id: string): Observable<string[]>{
+    return this.http.get<string[]>(ServerUrl.rootUrl + '/api/user/roleRights/' + role_id);
   }
 
   isUsernameTaken(username: string): Observable<boolean>{
