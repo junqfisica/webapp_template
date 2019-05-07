@@ -27,9 +27,17 @@ class TableNames:
 
 
 class Role:
-    """ Possible roles for the users."""
+    """ Possible roles for the user."""
     ADMIN = "ROLE_ADMIN"
     USER = "ROLE_USER"
+
+
+class Right:
+    """ Possible rights for the user."""
+    VIEW_USER = "RIGHT_USER"
+    CREATE_USER = "RIGHT_USER_CREATE"
+    EDIT_USER = "RIGHT_USER_EDIT"
+    DELETE_USER = "RIGHT_USER_DELETE"
 
 
 # Import models. Watch for circular dependencies.

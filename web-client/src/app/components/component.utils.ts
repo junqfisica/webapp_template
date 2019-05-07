@@ -33,7 +33,21 @@ export abstract class ComponentUtils {
         return false;
     }
 
+    protected userHasRight(user: User, right: string): boolean {
+      if (user == null) {
+        return false;
+      }
+      if (user.rights != null && user.rights.includes(right)) {
+        return true;
+      }
+      return false;
+    }
+
     public hasRole(role: string): boolean {
         return this.userHasRole(this.currentUser, role);
+    }
+
+    public hasRight(right: string): boolean {
+      return this.userHasRight(this.currentUser, right);
     }
   }

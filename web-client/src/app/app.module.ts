@@ -21,7 +21,7 @@ import { AuthService } from './services/auth/auth.service';
 import { LoginComponent } from './components/login/login.component';
 import { NotificationService } from './services/notification/notification.service';
 import { CreateUserComponent } from './components/user/create-user/create-user.component';
-import { LoginPermission, SameUserPermission, AdminPermission } from './urlPermission/url.permission';
+import { LoginPermission, SameUserPermission, AdminPermission, RightPermission } from './urlPermission/url.permission';
 import { UserListComponent } from './components/user/user-list/user-list.component';
 import { UserEditComponent } from './components/user/user-edit/user-edit.component';
 import { AccountComponent } from './components/user/account/account.component';
@@ -61,7 +61,8 @@ import { AccountComponent } from './components/user/account/account.component';
     },
     LoginPermission,
     SameUserPermission,
-    AdminPermission
+    AdminPermission,
+    RightPermission
   ],
   bootstrap: [AppComponent]
 })

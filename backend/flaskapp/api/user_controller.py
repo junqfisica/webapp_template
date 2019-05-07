@@ -8,7 +8,7 @@ from flaskapp.api import users
 from flaskapp.http_util import response as response
 from flaskapp.http_util.decorators import secure, post, query
 from flaskapp.http_util.exceptions import UserNotFound, PermissionDenied
-from flaskapp.models import UserModel, Role, RoleModel, RightModel, RolesRightsModel
+from flaskapp.models import UserModel, Role, RoleModel, RightModel, RolesRightsModel, Right
 from flaskapp.structures.structures import Search, SearchResult
 
 
@@ -20,6 +20,7 @@ def __is_username_taken(username: str) -> bool:
 
 
 @users.route("/<string:user_id>", methods=["GET"])
+@secure(Role.USER)
 def get_user(user_id: str):
     user: UserModel = UserModel.find_by_id(user_id)
     if user:
@@ -29,6 +30,7 @@ def get_user(user_id: str):
 
 
 @users.route("/roles", methods=["GET"])
+@secure(Role.USER)
 def get_roles():
     roles: List[RoleModel] = RoleModel.get_all(order_by=RoleModel.label)
     if roles:
@@ -38,6 +40,7 @@ def get_roles():
 
 
 @users.route("/rights", methods=["GET"])
+@secure(Role.USER)
 def get_rights():
     rights: List[RightModel] = RightModel.get_all(order_by=RightModel.label)
     if rights:
@@ -57,7 +60,7 @@ def get_rights_from_roles(role_id: str):
 
 
 @users.route("/all", methods=["GET"])
-@secure(Role.ADMIN)
+@secure(Right.VIEW_USER)
 def get_users():
 
     all_users: List[UserModel] = UserModel.get_all()
@@ -69,7 +72,7 @@ def get_users():
 
 
 @users.route("/search", methods=["GET"])
-@secure(Role.ADMIN)
+@secure(Right.VIEW_USER)
 @query(Search)
 def search(user_search: Search):
 
@@ -78,6 +81,7 @@ def search(user_search: Search):
 
 
 @users.route("/username/<string:username>", methods=["GET"])
+@secure(Role.USER)
 def get_user_by_username(username: str):
     user = UserModel.find_by_username(username)
 
@@ -94,7 +98,7 @@ def is_taken(username: str):
 
 
 @users.route("/create", methods=["POST"])
-@secure(Role.ADMIN)
+@secure(Right.CREATE_USER)
 @post()
 def create_user(user: dict):
     # create a user model from user data.
@@ -110,7 +114,7 @@ def create_user(user: dict):
 
 
 @users.route("/update", methods=["POST"])
-@secure(Role.ADMIN)
+@secure(Right.EDIT_USER)
 @post()
 def update_user(user: dict):
     # update user
@@ -140,7 +144,7 @@ def user_self_update(user: dict):
 
 
 @users.route("/delete/<string:user_id>", methods=["DELETE"])
-@secure(Role.ADMIN)
+@secure(Right.DELETE_USER)
 def delete_user(user_id):
     user: UserModel = UserModel.find_by_id(user_id)
     if not user:

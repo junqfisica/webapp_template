@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
 import { LocalStorage } from '../statics/local-storage';
-import { Role } from '../model/model.role';
 
 @Injectable()
 export class LoginPermission implements CanActivate {
@@ -32,6 +31,32 @@ export class AdminPermission implements CanActivate {
     }
 
     // Don't have admin role.
+    console.log("You don't have permission to access this page.");
+    this.router.navigate(['/'], { queryParams: { returnUrl: state.url }});
+    return false;
+  }
+}
+
+@Injectable()
+export class RightPermission implements CanActivate {
+
+  constructor(private router: Router) { }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        
+    if (!route.data["rights"]) {
+      console.error("You must provide a data['rights'] to use RightPermission. i.e: data: {rights: ['RIGHT_USER_CREATE']}");
+      return false;
+    }
+    const rights: string[] = route.data["rights"]
+
+    for (const right of rights ) {
+      if (LocalStorage.currentUser && LocalStorage.currentUser.rights.includes(right)) {
+        return true;
+      }
+    }
+    // Don't have rights.
+    console.log("You don't have permission to access this page.");
     this.router.navigate(['/'], { queryParams: { returnUrl: state.url }});
     return false;
   }
@@ -50,6 +75,7 @@ export class SameUserPermission implements CanActivate {
         return true;
       } else {
         // Not the same user.
+        console.log("You don't have permission to access this page.");
         this.router.navigate(['/'], { queryParams: { returnUrl: state.url }});
         return false;
       }

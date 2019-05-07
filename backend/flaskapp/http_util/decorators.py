@@ -144,21 +144,21 @@ def post_from_form(*form_parameters: str):
     return app_decorator
 
 
-def secure(role):
+def secure(permission: str):
     """
-    Check if user has a given role. If not, raise :class:`PermissionDenied` exception witch
+    Check if user has a given role/right. If not, raise :class:`PermissionDenied` exception witch
     sends an unauthorized response to the client.
 
-    :param role: The role to be checked. Use de class Role from models to pass a secure value.
-    :return: The decorated method if user has the role. Otherwise, it will redirect an unauthorized
-        response to the client.
+    :param permission: The role/right to be checked. Use the class Role/Right from models to pass a secure value.
+    :return: An unauthorized response to the client if the user don't have the right permission.
     """
     def app_decorator(func):
         @wraps(func)
         def wrap_func(*args, **kwargs):
-            if current_user.is_authenticated and current_user.has_role(role):
+            if current_user.is_authenticated and \
+                    (current_user.has_role(permission) or current_user.has_right(permission)):
                 return func(*args, **kwargs)
             else:
-                raise PermissionDenied("User has no role {}".format(role))
+                raise PermissionDenied("User has no permission {}".format(permission))
         return wrap_func
     return app_decorator

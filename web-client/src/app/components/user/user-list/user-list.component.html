@@ -44,11 +44,11 @@
       <td>{{user.name}} {{user.surname}}</td>
       <td>
         <div class="pull-right">
-          <a routerLink="/user/edit/{{user.id}}" class="btn btn-xs btn-default" *ngIf="hasRole('ROLE_ADMIN')" title="edit">
+          <a routerLink="/user/edit/{{user.id}}" class="btn btn-xs btn-default" *ngIf="hasRight('RIGHT_USER_EDIT')" title="edit">
             <span class="fa fa-pencil icon-medium"></span>
           </a>
           <button (click)="openDeleteModal(deleteModalTemplate, user)" class="btn btn-xs btn-default" 
-            *ngIf="hasRole('ROLE_ADMIN')" title="delete" [disabled]="isCurrentUser(user)">
+            *ngIf="hasRight('RIGHT_USER_DELETE')" title="delete" [disabled]="isCurrentUser(user)">
             <span class="fa fa-trash-o icon-medium"></span>
           </button>
         </div>
