@@ -56,19 +56,9 @@ insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_CREATE');
 insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_EDIT');
 insert into APP.T_ROLES_RIGHTS values ('ROLE_ADMIN','RIGHT_USER_DELETE');
 
-create table APP.T_ACCESS_TOKENS (
-	ID varchar(16) not null,
-	EXPIRY timestamp, 
-	TOKEN varchar(255) not null, 
-	USER_ID varchar(16) not null, 
-	primary key (ID, TOKEN),
-	foreign key (USER_ID) references APP.T_USER (ID) on delete restrict
-);
-grant all privileges on table APP.T_ACCESS_TOKENS to APP;
-
 create table APP.T_USER (
 	ID varchar(16) not null, 
-	FORENAME varchar(50) not null, 
+	NAME varchar(50) not null, 
 	PASSWORD varchar(80) not null, 
 	SURNAME varchar(50) not null, 
 	USERNAME varchar(50) not null unique, 
@@ -78,6 +68,16 @@ grant all privileges on table APP.T_USER to APP;
 
 insert into APP.T_USER values ('A7BU1ZBUgL','Thiago', '$2b$12$3BuLlTO02cb61trmjZOC4OikAq6v.C6tK9cwd0dz.osvRTgL0IrjO', 'Junqueira', 'admin');
 insert into APP.T_USER values ('B7BU2ZBUgL','Julia', '$2b$12$3BuLlTO02cb61trmjZOC4OikAq6v.C6tK9cwd0dz.osvRTgL0IrjO', 'Sammler', 'july');
+
+create table APP.T_ACCESS_TOKENS (
+	ID varchar(16) not null,
+	EXPIRY timestamp, 
+	TOKEN varchar(255) not null, 
+	USER_ID varchar(16) not null, 
+	primary key (ID, TOKEN),
+	foreign key (USER_ID) references APP.T_USER (ID) on delete restrict
+);
+grant all privileges on table APP.T_ACCESS_TOKENS to APP;
 
 create table APP.T_USER_ROLES (
     USER_ID varchar(16) not null,
@@ -105,4 +105,9 @@ create table APP.T_USER_RIGHTS
     foreign key (RIGHT_ID) references APP.S_RIGHTS (RIGHT_ID) on delete restrict
 );
 grant all privileges on table APP.T_USER_RIGHTS to APP;
+
+insert into SDP.T_USER_RIGHTS values ('A7BU1ZBUgL','RIGHT_USER_CREATE');
+insert into SDP.T_USER_RIGHTS values ('A7BU1ZBUgL','RIGHT_USER_DELETE');
+insert into SDP.T_USER_RIGHTS values ('A7BU1ZBUgL','RIGHT_USER_EDIT');
+insert into SDP.T_USER_RIGHTS values ('A7BU1ZBUgL','RIGHT_USER');
 
